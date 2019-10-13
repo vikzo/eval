@@ -87,5 +87,15 @@ namespace Eval.Test.Unit.Util
             entry22.Should().BeCloseTo(50, 2);
         }
 
+        [TestMethod]
+        public void TestRouletteShouldThrowExceptionOnEmpty()
+        {
+            var roulette = new Roulette<RouletteEntry>(new DefaultRandomNumberGenerator());
+
+            roulette.Add(new RouletteEntry(0), 1);
+
+            roulette.Invoking(r => r.Spin(true)).Should().NotThrow();
+            roulette.Invoking(r => r.Spin(true)).Should().Throw<InvalidOperationException>();
+        }
     }
 }

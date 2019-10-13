@@ -44,7 +44,7 @@ namespace Eval.Core.Util.Roulette
         public T Spin(bool remove)
         {
             if (_entries.Count == 0)
-                throw new Exception("No entries in RouletteWheel.");
+                throw new InvalidOperationException("No entries in RouletteWheel.");
 
             double r = _rng.NextDouble() * _p_sum;
             double cumulative = 0.0;
