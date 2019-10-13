@@ -12,8 +12,6 @@ namespace Eval.Core.Util.Roulette
         private readonly IRandomNumberGenerator _rng;
         private readonly List<Entry<T>> _entries;
         private double _p_sum = 0.0;
-        private double _p_max = double.MinValue;
-        private double _p_min = double.MaxValue;
 
         public Roulette(IRandomNumberGenerator rng, int capacity)
         {
@@ -27,8 +25,6 @@ namespace Eval.Core.Util.Roulette
 
         public void Add(T element, double p)
         {
-            _p_max = Math.Max(p, _p_max);
-            _p_min = Math.Min(p, _p_min);
             _p_sum += p;
             var e = new Entry<T>(element, p);
             _entries.Add(e);
