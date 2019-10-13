@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Eval.Core;
 using Eval.Core.Models;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -113,7 +114,36 @@ namespace Eval.Test.Unit.Models
             }
         }
 
-        // TODO: Sort
+        [TestMethod]
+        public void SortShouldThrowIfPopulationIsEmpty()
+        {
+            population.Invoking(p => p.Sort(EAMode.MaximizeFitness))
+                .Should().Throw<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public void WhenEAModeIsMaximize_SortShouldSortDescending()
+        {
+            var rng = new Random("this is seed".GetHashCode());
+            var (mocks, _) = FillWithMocks(population,
+                mock => mock.SetupGet(p => p.Fitness).Returns(rng.NextDouble()));
+
+            population.Sort(EAMode.MaximizeFitness);
+
+            population.Should().BeInDescendingOrder(i => i.Fitness);
+        }
+
+        [TestMethod]
+        public void WhenEAModeIsMinimize_SortShouldSortAscending()
+        {
+            var rng = new Random("this is seed".GetHashCode());
+            var (mocks, _) = FillWithMocks(population,
+                mock => mock.SetupGet(p => p.Fitness).Returns(rng.NextDouble()));
+
+            population.Sort(EAMode.MinimizeFitness);
+
+            population.Should().BeInAscendingOrder(i => i.Fitness);
+        }
 
         private static (IList<Mock<IPhenotype>>, Func<IPhenotype>) FillWithMocks(
             Population population,

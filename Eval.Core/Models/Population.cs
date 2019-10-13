@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Eval.Core.Models
 {
@@ -48,11 +47,11 @@ namespace Eval.Core.Models
             switch (mode)
             {
                 case EAMode.MaximizeFitness:
-                    population.OrderByDescending(i => i.Fitness);
+                    Array.Sort(population, (a, b) => b.Fitness.CompareTo(a.Fitness));
                     break;
 
                 case EAMode.MinimizeFitness:
-                    population.OrderBy(i => i.Fitness);
+                    Array.Sort(population, (a, b) => a.Fitness.CompareTo(b.Fitness));
                     break;
 
                 default:
