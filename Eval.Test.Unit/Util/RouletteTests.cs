@@ -40,13 +40,13 @@ namespace Eval.Test.Unit.Util
                 count[e.N]++;
             }
 
-            int entry0 = Convert.ToInt32(count[0] / 10000.0);
-            int entry1 = Convert.ToInt32(count[1] / 10000.0);
-            int entry2 = Convert.ToInt32(count[2] / 10000.0);
+            double entry0 = count[0] / 10000.0;
+            double entry1 = count[1] / 10000.0;
+            double entry2 = count[2] / 10000.0;
 
-            entry0.Should().BeCloseTo(50, 1);
-            entry1.Should().BeCloseTo(25, 1);
-            entry2.Should().BeCloseTo(25, 1);
+            entry0.Should().BeApproximately(50, 1);
+            entry1.Should().BeApproximately(25, 1);
+            entry2.Should().BeApproximately(25, 1);
         }
 
         [TestMethod]
@@ -59,8 +59,8 @@ namespace Eval.Test.Unit.Util
             {
                 var roulette = new Roulette<RouletteEntry>(new DefaultRandomNumberGenerator());
 
-                roulette.Add(new RouletteEntry(0), 0.99998);
-                roulette.Add(new RouletteEntry(1), 0.00001);
+                roulette.Add(new RouletteEntry(0), 0.99990);
+                roulette.Add(new RouletteEntry(1), 0.00009);
                 roulette.Add(new RouletteEntry(2), 0.00001);
 
 
@@ -70,21 +70,21 @@ namespace Eval.Test.Unit.Util
                 count2[e2.N]++;
             }
 
-            int entry0 = Convert.ToInt32(count[0] / 10000.0);
-            int entry1 = Convert.ToInt32(count[1] / 10000.0);
-            int entry2 = Convert.ToInt32(count[2] / 10000.0);
+            double entry0 = count[0] / 10000.0;
+            double entry1 = count[1] / 10000.0;
+            double entry2 = count[2] / 10000.0;
 
-            int entry20 = Convert.ToInt32(count2[0] / 10000.0);
-            int entry21 = Convert.ToInt32(count2[1] / 10000.0);
-            int entry22 = Convert.ToInt32(count2[2] / 10000.0);
+            double entry20 = count2[0] / 10000.0;
+            double entry21 = count2[1] / 10000.0;
+            double entry22 = count2[2] / 10000.0;
 
-            entry0.Should().BeCloseTo(100, 1);
-            entry1.Should().BeCloseTo(0, 1);
-            entry2.Should().BeCloseTo(0, 1);
+            entry0.Should().BeApproximately(100, 1);
+            entry1.Should().BeApproximately(0, 1);
+            entry2.Should().BeApproximately(0, 1);
 
-            entry20.Should().BeCloseTo(0, 2);
-            entry21.Should().BeCloseTo(50, 2);
-            entry22.Should().BeCloseTo(50, 2);
+            entry20.Should().BeApproximately(0, 2);
+            entry21.Should().BeApproximately(90, 2);
+            entry22.Should().BeApproximately(10, 2);
         }
 
         [TestMethod]
