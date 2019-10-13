@@ -69,7 +69,7 @@ namespace Eval.Core.Util.Roulette
 
         public override string ToString()
         {
-            return $"Roulette{{Entries={_entries.ToString()}, p_sum={_p_sum}, p_max={_p_max}, p_min={_p_min}}}";
+            return $"Roulette{{Entries={_entries.ToString()}, p_sum={_p_sum}}}";
         }
     }
 }
