@@ -1,4 +1,5 @@
-﻿using Eval.Core.Models;
+﻿using Eval.Core.Config;
+using Eval.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,4 +76,5 @@ namespace Eval.Core
         protected abstract IPhenotype CreateRandomPhenotype();
 
     }
+
 }
