@@ -47,18 +47,14 @@ namespace Eval.Core.Util.Roulette
                 p[i] = p_e;
             }
 
-            var factor = n / p_sum; // multiply by n because of Alias algo, divide by p_sum to normalize probabilities.
-            for (int i = 0; i < n; i++)
-            {
-                p[i] *= factor; // TODO: move to next loop?
-            }
-
             // Alias algo init
             var small = new Queue<int>();
             var large = new Queue<int>();
 
+            var factor = n / p_sum; // multiply by n because of Alias algo, divide by p_sum to normalize probabilities.
             for (int i = 0; i < n; i++)
             {
+                p[i] *= factor;
                 if (p[i] < 1.0) small.Enqueue(i);
                 else large.Enqueue(i);
             }
