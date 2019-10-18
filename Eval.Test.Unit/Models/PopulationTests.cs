@@ -24,7 +24,7 @@ namespace Eval.Test.Unit.Models
         [TestMethod]
         public void ShouldCreatePopulationOfCorrectSize()
         {
-            population.Size.Should().Be(preferredPopSize);
+            population.Count.Should().Be(preferredPopSize);
         }
 
         [TestMethod]
