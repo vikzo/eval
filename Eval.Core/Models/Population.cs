@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Eval.Core.Models
 {
-    public class Population : IEnumerable<IPhenotype>, IReadOnlyList<IPhenotype>
+    public class Population : IReadOnlyList<IPhenotype>
     {
         public int Count => population.Length;
         public bool IsFilled { get; private set; }
