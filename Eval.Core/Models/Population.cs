@@ -1,4 +1,5 @@
 ﻿using Eval.Core.Config;
+using Eval.Core.Util.EARandom;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +10,10 @@ namespace Eval.Core.Models
     public class Population : IReadOnlyList<IPhenotype>
     {
         public bool IsFilled { get; private set; }
+        /// <summary>
+        /// A sorted population will always have the best fitness (lowest or highest) at index 0.
+        /// </summary>
+        public bool IsSorted { get; private set; }
         private int _index;
         private readonly IPhenotype[] _population;
 
@@ -41,14 +46,16 @@ namespace Eval.Core.Models
                 Add(phenotypeFactory());
             }
             IsFilled = true;
+            IsSorted = false;
         }
 
         public void Add(IPhenotype phenotype)
         {
-            ThrowIfAddOnFull();
+            ThrowIfNullOrFull(phenotype);
             _population[_index++] = phenotype;
 
             IsFilled = _index == _population.Length;
+            IsSorted = false;
         }
 
         public void Clear()
@@ -56,6 +63,7 @@ namespace Eval.Core.Models
             Array.Clear(_population, 0, _population.Length);
             _index = 0;
             IsFilled = false;
+            IsSorted = false;
         }
 
         public void Clear(int elitism, EAMode mode)
@@ -85,9 +93,7 @@ namespace Eval.Core.Models
                 }
 
                 Clear();
-                _population[0] = elite;
-                _index = 1;
-                IsFilled = false;
+                Add(elite);
                 return;
             }
 
@@ -96,6 +102,7 @@ namespace Eval.Core.Models
             Array.Clear(_population, elitism, _population.Length - elitism);
             _index = elitism;
             IsFilled = false;
+            IsSorted = false;
         }
 
 
@@ -125,6 +132,7 @@ namespace Eval.Core.Models
                 default:
                     throw new NotImplementedException($"EA mode {mode} is not implemented");
             }
+            IsSorted = true;
         }
 
         private void ThrowIfNotFilled()
@@ -135,17 +143,19 @@ namespace Eval.Core.Models
             }
         }
 
-        private void ThrowIfAddOnFull()
+        private void ThrowIfNullOrFull(IPhenotype toAdd)
         {
+            if (toAdd == null)
+                throw new ArgumentNullException("phenotype");
             if (Count >= _population.Length)
                 throw new InvalidOperationException("Population is full");
         }
 
         public IEnumerator<IPhenotype> GetEnumerator()
         {
-            foreach (var individual in _population)
+            for (int i = 0; i < Count; i++)
             {
-                yield return individual;
+                yield return _population[i];
             }
         }
 
@@ -184,6 +194,46 @@ namespace Eval.Core.Models
                     best = p;
             }
             return best;
+        }
+
+        /// <summary>
+        /// Creates a probability selector according to the provided mode.
+        /// The returned selector does not automatically reflect changes to
+        /// the population fitness landscape. If the population is mutated,
+        /// a new selector must be created.
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public Func<IPhenotype, double> GetProbabilitySelector(EAMode mode)
+        {
+            if (mode == EAMode.MaximizeFitness)
+            {
+                return p => p.Fitness;
+            }
+            else if (mode == EAMode.MinimizeFitness)
+            {
+                var maxFitness = double.MinValue; // TODO: maybe we can keep track of this when pop is filled?
+                var minFitness = double.MaxValue;
+
+                foreach (var p in _population)
+                {
+                    maxFitness = Math.Max(p.Fitness, maxFitness);
+                    minFitness = Math.Min(p.Fitness, minFitness);
+                }
+
+                var sum = maxFitness + minFitness;
+                return p => sum - p.Fitness;
+            }
+            else
+            {
+                throw new NotImplementedException($"GetProbabilitySelector not implemented for mode {mode}");
+            }
+        }
+
+        public IPhenotype DrawRandom(IRandomNumberGenerator random)
+        {
+            ThrowIfNotFilled();
+            return this[random.Next(Size)];
         }
     }
 }
