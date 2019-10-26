@@ -23,5 +23,8 @@ namespace Eval.Core.Config
         bool ReevaluateElites { get; }
         double RankSelectionMinProbability { get; }
         double RankSelectionMaxProbability { get; }
+        bool CalculateStatistics { get; }
+        int WorkerThreads { get; }
+        int IOThreads { get; }
     }
 }
