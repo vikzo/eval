@@ -5,33 +5,65 @@ using Eval.Core.Selection.Parent;
 using Eval.Core.Util.EARandom;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 
 namespace Eval.Core
 {
+
+    [Serializable]
     public abstract class EA
     {
-        public IEAConfiguration EAConfiguration { get; set; }
-
+        [field: NonSerialized]
         public event Action<int> NewGenerationEvent;
+        [field: NonSerialized]
         public event Action<IPhenotype> NewBestFitnessEvent;
+        [field: NonSerialized]
         public event Action<double> FitnessLimitReachedEvent;
+        [field: NonSerialized]
         public event Action<int> GenerationLimitReachedEvent;
+        [field: NonSerialized]
         public event Action<IPhenotype> PhenotypeEvaluatedEvent;
+        [field: NonSerialized]
         public event Action AbortedEvent;
+        [field: NonSerialized]
         public event Action<PopulationStatistics> PopulationStatisticsCalculated;
 
-        protected List<PopulationStatistics> PopulationStatistics { get; private set; }
-        protected readonly List<IPhenotype> Elites;
+        public IEAConfiguration EAConfiguration { get; set; }
+        public bool IsRunning { get; private set; }
+        public bool IsStarted { get; private set; }
+        public int Generation { get; private set; }
+        public TimeSpan GetDuration => _stopwatch.Elapsed;
 
+        protected List<PopulationStatistics> PopulationStatistics { get; private set; }
+        protected List<IPhenotype> Elites;
         protected IPhenotype GenerationalBest;
         protected IPhenotype Best;
         protected bool Abort;
         protected IParentSelection ParentSelection;
         protected IAdultSelection AdultSelection;
         protected IRandomNumberGenerator RNG;
-        protected int Generation { get; private set; }
+        protected Population Population { get; private set; }
+        private int _offspringSize;
+        private Population _offspring;
+
+        [NonSerialized]
+        private Stopwatch _stopwatch;
+        private TimeSpan _runtime;
+        public TimeSpan Runtime 
+        {
+            get 
+            {
+                return _runtime + _stopwatch.Elapsed;
+            }
+            private set 
+            {
+                _runtime = value; 
+            } 
+        }
 
         public EA(IEAConfiguration configuration, IRandomNumberGenerator rng)
         {
@@ -48,6 +80,7 @@ namespace Eval.Core
                 ThreadPool.SetMinThreads(EAConfiguration.WorkerThreads, EAConfiguration.IOThreads);
                 ThreadPool.SetMaxThreads(EAConfiguration.WorkerThreads, EAConfiguration.IOThreads);
             }
+            
         }
 
         protected abstract IPhenotype CreateRandomPhenotype();
@@ -100,29 +133,43 @@ namespace Eval.Core
 
         public EAResult Evolve()
         {
-            var population = CreateInitialPopulation(EAConfiguration.PopulationSize);
-            var offspringSize = (int)(EAConfiguration.PopulationSize * Math.Max(EAConfiguration.OverproductionFactor, 1));
-            var offspring = new Population(offspringSize);
+            _stopwatch = Stopwatch.StartNew();
+            IsRunning = true;
+            IsStarted = true;
 
-            population.Evaluate(EAConfiguration.ReevaluateElites, PhenotypeEvaluatedEvent);
-            Generation = 1;
+            if (EAConfiguration.SnapshotGenerationInterval > 0 
+                && !string.IsNullOrEmpty(EAConfiguration.SnapshotFilename)
+                && File.Exists(EAConfiguration.SnapshotFilename))
+            {
+                BinaryDeserialize(EAConfiguration.SnapshotFilename);
+            }
+            else
+            {
+                Population = CreateInitialPopulation(EAConfiguration.PopulationSize);
+                _offspringSize = (int)(EAConfiguration.PopulationSize * Math.Max(EAConfiguration.OverproductionFactor, 1));
+                _offspring = new Population(_offspringSize);
 
-            Best = null;
+                Population.Evaluate(EAConfiguration.ReevaluateElites, PhenotypeEvaluatedEvent);
+                Generation = 1;
+
+                Best = null;
+            }
 
             while (true)
             {
-                population.Sort(EAConfiguration.Mode);
-                var generationBest = population.First();
+                Serialize();
+                Population.Sort(EAConfiguration.Mode);
+                var generationBest = Population.First();
 
                 if (IsBetterThan(generationBest, Best))
                 {
                     Best = generationBest;
                     NewBestFitnessEvent?.Invoke(Best);
                 }
+                
+                CalculateStatistics(Population);
 
                 NewGenerationEvent?.Invoke(Generation);
-                
-                CalculateStatistics(population);
 
                 if (!RunCondition(Generation))
                 {
@@ -131,11 +178,11 @@ namespace Eval.Core
                 
                 Elites.Clear();
                 for (int i = 0; i < EAConfiguration.Elites; i++)
-                    Elites.Add(population[i]);
+                    Elites.Add(Population[i]);
                 
-                var parents = ParentSelection.SelectParents(population, offspringSize - Elites.Count, EAConfiguration.Mode, RNG);
+                var parents = ParentSelection.SelectParents(Population, _offspringSize - Elites.Count, EAConfiguration.Mode, RNG);
                 
-                offspring.Clear();
+                _offspring.Clear();
                 foreach (var couple in parents)
                 {
                     IGenotype geno1 = couple.Item1.Genotype;
@@ -149,23 +196,25 @@ namespace Eval.Core
 
                     newgeno.Mutate(EAConfiguration.MutationRate, RNG);
                     var child = CreatePhenotype(newgeno);
-                    offspring.Add(child);
+                    _offspring.Add(child);
                 }
                 
-                CalculateFitnesses(offspring);
+                CalculateFitnesses(_offspring);
                 
-                AdultSelection.SelectAdults(offspring, population, EAConfiguration.PopulationSize - Elites.Count, EAConfiguration.Mode);
+                AdultSelection.SelectAdults(_offspring, Population, EAConfiguration.PopulationSize - Elites.Count, EAConfiguration.Mode);
                 
                 for (int i = 0; i < EAConfiguration.Elites; i++)
-                    population.Add(Elites[i]);
+                    Population.Add(Elites[i]);
 
                 Generation++;
             }
 
+            IsRunning = false;
+            _stopwatch.Stop();
             return new EAResult
             {
-                Winner = population[0],
-                EndPopulation = population
+                Winner = Population[0],
+                EndPopulation = Population
             };
         }
 
@@ -206,6 +255,8 @@ namespace Eval.Core
             }
             return true;
         }
+
+        
 
         protected virtual void CalculateStatistics(Population population)
         {
@@ -250,6 +301,62 @@ namespace Eval.Core
             PhenotypeEvaluatedEvent?.Invoke(pheno);
 
             countdownEvent.Signal();
+        }
+
+        private void Serialize()
+        {
+            if (EAConfiguration.SnapshotGenerationInterval <= 0
+                || Generation % EAConfiguration.SnapshotGenerationInterval != 0
+                && Generation != 1) // run on first generation as a test in case some class is missing [Serializable]
+                return;
+
+            BinarySerialize(EAConfiguration.SnapshotFilename);
+        }
+
+        /// <summary>
+        /// Throws exception on serialization failure
+        /// </summary>
+        /// <param name="filename"></param>
+        public virtual void BinarySerialize(string filename)
+        {
+            Runtime += _stopwatch.Elapsed;
+            var stream = File.OpenWrite(filename);
+            var formatter = new BinaryFormatter();
+            formatter.Serialize(stream, this);
+            stream.Close();
+        }
+
+        /// <summary>
+        /// Throws exception on deserialization failure
+        /// </summary>
+        /// <param name="filename"></param>
+        public virtual void BinaryDeserialize(string filename)
+        {
+            var stream = File.OpenRead(filename);
+            var formatter = new BinaryFormatter();
+            var ea = (EA)formatter.Deserialize(stream);
+            stream.Close();
+
+            AssertConfigurationCompatibility(ea.EAConfiguration);
+
+            this.Population = ea.Population;
+            this.PopulationStatistics = ea.PopulationStatistics;
+            this.ParentSelection = ea.ParentSelection;
+            this.AdultSelection = ea.AdultSelection;
+            this.Best = ea.Best;
+            this.Elites = ea.Elites;
+            this.Generation = ea.Generation;
+            this.GenerationalBest = ea.GenerationalBest;
+            this.RNG = ea.RNG;
+            this._offspring = ea._offspring;
+            this._offspringSize = ea._offspringSize;
+            this._runtime = ea._runtime;
+        }
+
+        public virtual void AssertConfigurationCompatibility(IEAConfiguration other)
+        {
+            if (EAConfiguration.PopulationSize != other.PopulationSize)
+                throw new ArgumentException("Population size cannot differ between snapshots. In snapshot: "+other.PopulationSize);
         }
     }
 

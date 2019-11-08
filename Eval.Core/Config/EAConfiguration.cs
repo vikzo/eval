@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Eval.Core.Models;
 using Eval.Core.Selection.Adult;
 using Eval.Core.Selection.Parent;
@@ -9,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace Eval.Core.Config
 {
+    [Serializable]
     public class EAConfiguration : IEAConfiguration
     {
         public int PopulationSize { get; set; }
@@ -30,6 +29,8 @@ namespace Eval.Core.Config
         public bool CalculateStatistics { get; set; }
         public int WorkerThreads { get; set; }
         public int IOThreads { get; set; } 
+        public int SnapshotGenerationInterval { get; set; }
+        public string SnapshotFilename { get; set; }
 
 
         public static EAConfiguration ReadConfigurationFromFile(string filePath)
