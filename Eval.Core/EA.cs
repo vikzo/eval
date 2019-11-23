@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Eval.Core
 {
@@ -20,7 +21,7 @@ namespace Eval.Core
         [field: NonSerialized]
         public event Action<int> NewGenerationEvent;
         [field: NonSerialized]
-        public event Action<IPhenotype> NewBestFitnessEvent;
+        public event Action<IPhenotype, int> NewBestFitnessEvent;
         [field: NonSerialized]
         public event Action<double> FitnessLimitReachedEvent;
         [field: NonSerialized]
@@ -75,12 +76,11 @@ namespace Eval.Core
             AdultSelection = CreateAdultSelection();
             ParentSelection = CreateParentSelection();
 
-            if (EAConfiguration.WorkerThreads > 1)
+            if (EAConfiguration.WorkerThreads > 1) // TODO: ThreadPool cannot have less threads than cpu. FIX ASAP!
             {
                 ThreadPool.SetMinThreads(EAConfiguration.WorkerThreads, EAConfiguration.IOThreads);
                 ThreadPool.SetMaxThreads(EAConfiguration.WorkerThreads, EAConfiguration.IOThreads);
             }
-            
         }
 
         protected abstract IPhenotype CreateRandomPhenotype();
@@ -131,7 +131,7 @@ namespace Eval.Core
             }
         }
 
-        public EAResult Evolve()
+        public virtual EAResult Evolve()
         {
             _stopwatch = Stopwatch.StartNew();
             IsRunning = true;
@@ -149,7 +149,7 @@ namespace Eval.Core
                 _offspringSize = (int)(EAConfiguration.PopulationSize * Math.Max(EAConfiguration.OverproductionFactor, 1));
                 _offspring = new Population(_offspringSize);
 
-                Population.Evaluate(EAConfiguration.ReevaluateElites, PhenotypeEvaluatedEvent);
+                CalculateFitnesses(Population);
                 Generation = 1;
 
                 Best = null;
@@ -164,7 +164,7 @@ namespace Eval.Core
                 if (IsBetterThan(generationBest, Best))
                 {
                     Best = generationBest;
-                    NewBestFitnessEvent?.Invoke(Best);
+                    NewBestFitnessEvent?.Invoke(Best, Generation);
                 }
                 
                 CalculateStatistics(Population);

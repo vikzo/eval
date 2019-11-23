@@ -23,12 +23,12 @@ namespace Eval.Core.Config
         public double TargetFitness { get; set; }
         public EAMode Mode { get; set; }
         public int Elites { get; set; }
-        public bool ReevaluateElites { get; set; }
+        public bool ReevaluateElites { get; set; } = false;
         public double RankSelectionMinProbability { get; set; }
         public double RankSelectionMaxProbability { get; set; }
-        public bool CalculateStatistics { get; set; }
-        public int WorkerThreads { get; set; }
-        public int IOThreads { get; set; } 
+        public bool CalculateStatistics { get; set; } = false;
+        public int WorkerThreads { get; set; } = 1;
+        public int IOThreads { get; set; } = 1;
         public int SnapshotGenerationInterval { get; set; }
         public string SnapshotFilename { get; set; }
 
