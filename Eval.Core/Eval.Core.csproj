@@ -5,7 +5,7 @@
     <LangVersion>7.1</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
     <Company>Yeskis</Company>
     <Product>Eval</Product>
     <Authors>Endre Larsen, Viktor Zoric, Bjørnar Alvestad</Authors>
