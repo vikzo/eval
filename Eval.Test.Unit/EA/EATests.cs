@@ -29,6 +29,7 @@ namespace Eval.Test.Unit.EATests
             MaximumGenerations = 2,
             AdultSelectionType = AdultSelectionType.GenerationalReplacement,
             ParentSelectionType = ParentSelectionType.FitnessProportionate,
+            Elites = 0,
             TargetFitness = 1
         };
 
@@ -111,6 +112,7 @@ namespace Eval.Test.Unit.EATests
             var ok = false;
             _config.MaximumGenerations = 500000;
             _config.MaxDuration = new TimeSpan(0, 0, 1);
+            _config.TargetFitness = 2; // impossible to reach
             _ea = new TestEA(_config, new DefaultRandomNumberGenerator());
             _ea.TerminationEvent += (r) =>
             {
@@ -150,7 +152,8 @@ namespace Eval.Test.Unit.EATests
         public int CreatePhenotypeCount = 0;
         public int CreateRandomPhenotypeCount = 0;
 
-        public TestEA(IEAConfiguration configuration, IRandomNumberGenerator rng) : base(configuration, rng)
+        public TestEA(IEAConfiguration configuration, IRandomNumberGenerator rng) 
+            : base(configuration, rng)
         {
         }
 

@@ -12,7 +12,7 @@ using Eval.Core;
 using Eval.Core.Config;
 using Eval.Core.Util.EARandom;
 
-namespace Eval.Examples.Hamming
+namespace Eval.Examples
 {
     public class HammingConfigGenotype : ConfigGenotype
     {

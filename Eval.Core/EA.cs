@@ -25,8 +25,20 @@ namespace Eval.Core
         public new TPhenotype Best => (TPhenotype)base.Best;
         public new TPhenotype GenerationalBest => (TPhenotype)base.GenerationalBest;
 
-        public EA(IEAConfiguration configuration, IRandomNumberGenerator rng) 
+        public EA(
+            IEAConfiguration configuration, 
+            IRandomNumberGenerator rng) 
             : base(configuration, rng)
+        {
+        }
+
+        protected EA(
+            IEAConfiguration configuration, 
+            IAdultSelection adultSelection, 
+            IParentSelection parentSelection, 
+            Population population, 
+            IRandomNumberGenerator rng = null) 
+            : base(configuration, adultSelection, parentSelection, population, rng)
         {
         }
     }
