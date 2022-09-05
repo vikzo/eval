@@ -11,7 +11,15 @@ using System;
 
 namespace Eval.Core.Models
 {
-    
+
+    public abstract class Phenotype<TGenotype> : Phenotype where TGenotype : class, IGenotype
+    {
+        public new TGenotype Genotype { get => (TGenotype)base.Genotype; }
+        protected Phenotype(TGenotype genotype) : base(genotype)
+        {
+        }
+    }
+
     public abstract class Phenotype : IPhenotype
     {
         private double _fitness;

@@ -15,22 +15,26 @@ using Eval.Core.Util.EARandom;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Eval.Core
 {
+    public abstract class EA : EA<IPhenotype>
+    {
+        public EA(IEAConfiguration configuration, IRandomNumberGenerator rng) 
+            : base(configuration, rng)
+        {
+        }
+    }
 
-    
-    public abstract class EA
+    public abstract class EA<TPhenotype>
+        where TPhenotype : class, IPhenotype
     {
         public event Action<int> NewGenerationEvent;
-        public event Action<IPhenotype, int> NewBestFitnessEvent;
+        public event Action<TPhenotype, int> NewBestFitnessEvent;
         public event Action<TerminationReason> TerminationEvent;
-        public event Action<IPhenotype> PhenotypeEvaluatedEvent;
+        public event Action<TPhenotype> PhenotypeEvaluatedEvent;
         public event Action<PopulationStatistics> PopulationStatisticsCalculated;
 
         public IEAConfiguration EAConfiguration { get; set; }
@@ -39,17 +43,18 @@ namespace Eval.Core
         public int Generation { get; private set; }
         public TimeSpan GetDuration => _stopwatch.Elapsed;
 
-        protected List<PopulationStatistics> PopulationStatistics { get; private set; }
-        protected List<IPhenotype> Elites;
-        protected IPhenotype GenerationalBest;
-        protected IPhenotype Best;
-        protected bool Abort;
+        public TPhenotype GenerationalBest { get; protected set; }
+        public TPhenotype Best { get; protected set; }
+        public bool AbortRequested { get; private set; }
+
         protected IParentSelection ParentSelection;
         protected IAdultSelection AdultSelection;
         protected IRandomNumberGenerator RNG;
+        protected List<PopulationStatistics> PopulationStatistics { get; private set; }
+        protected List<IPhenotype> Elites;
         protected Population Population { get; private set; }
-        private int _offspringSize;
         private Population _offspring;
+        private int _offspringSize;
 
         [NonSerialized]
         private Stopwatch _stopwatch;
@@ -77,8 +82,8 @@ namespace Eval.Core
             ParentSelection = CreateParentSelection();
         }
 
-        protected abstract IPhenotype CreateRandomPhenotype();
-        protected abstract IPhenotype CreatePhenotype(IGenotype genotype);
+        protected abstract TPhenotype CreateRandomPhenotype();
+        protected abstract TPhenotype CreatePhenotype(IGenotype genotype);
 
         /// <summary>
         /// Creates a new population filled with phenotypes from CreateRandomPhenotype method.
@@ -95,34 +100,25 @@ namespace Eval.Core
 
         protected virtual IAdultSelection CreateAdultSelection()
         {
-            switch (EAConfiguration.AdultSelectionType)
+            return EAConfiguration.AdultSelectionType switch
             {
-                case AdultSelectionType.GenerationalMixing:
-                    return new GenerationalMixingAdultSelection(RNG);
-                case AdultSelectionType.GenerationalReplacement:
-                    return new GenerationalReplacementAdultSelection();
-                case AdultSelectionType.Overproduction:
-                    return new OverproductionAdultSelection(RNG);
-                default:
-                    throw new NotImplementedException($"AdultSelectionType {EAConfiguration.AdultSelectionType}");
-            }
+                AdultSelectionType.GenerationalMixing => new GenerationalMixingAdultSelection(RNG),
+                AdultSelectionType.GenerationalReplacement => new GenerationalReplacementAdultSelection(),
+                AdultSelectionType.Overproduction => new OverproductionAdultSelection(RNG),
+                _ => throw new NotImplementedException($"AdultSelectionType {EAConfiguration.AdultSelectionType}"),
+            };
         }
 
         protected virtual IParentSelection CreateParentSelection()
         {
-            switch (EAConfiguration.ParentSelectionType)
+            return EAConfiguration.ParentSelectionType switch
             {
-                case ParentSelectionType.FitnessProportionate:
-                    return new ProportionateParentSelection();
-                case ParentSelectionType.Rank:
-                    return new RankParentSelection();
-                case ParentSelectionType.SigmaScaling:
-                    return new SigmaScalingParentSelection();
-                case ParentSelectionType.Tournament:
-                    return new TournamentParentSelection(EAConfiguration);
-                default:
-                    throw new NotImplementedException($"ParentSelectionType {EAConfiguration.ParentSelectionType}");
-            }
+                ParentSelectionType.FitnessProportionate => new ProportionateParentSelection(),
+                ParentSelectionType.Rank => new RankParentSelection(),
+                ParentSelectionType.SigmaScaling => new SigmaScalingParentSelection(),
+                ParentSelectionType.Tournament => new TournamentParentSelection(EAConfiguration),
+                _ => throw new NotImplementedException($"ParentSelectionType {EAConfiguration.ParentSelectionType}"),
+            };
         }
 
         public virtual EAResult Evolve()
@@ -147,7 +143,7 @@ namespace Eval.Core
 
                 if (IsBetterThan(generationBest, Best))
                 {
-                    Best = generationBest;
+                    Best = (TPhenotype)generationBest;
                     NewBestFitnessEvent?.Invoke(Best, Generation);
                 }
                 
@@ -162,7 +158,9 @@ namespace Eval.Core
                 
                 Elites.Clear();
                 for (int i = 0; i < EAConfiguration.Elites; i++)
+                {
                     Elites.Add(Population[i]);
+                }
                 
                 var parents = ParentSelection.SelectParents(Population, _offspringSize - Elites.Count, EAConfiguration.Mode, RNG);
                 
@@ -188,7 +186,9 @@ namespace Eval.Core
                 AdultSelection.SelectAdults(_offspring, Population, EAConfiguration.PopulationSize - Elites.Count, EAConfiguration.Mode);
                 
                 for (int i = 0; i < EAConfiguration.Elites; i++)
+                {
                     Population.Add(Elites[i]);
+                }
 
                 Generation++;
             }
@@ -202,26 +202,27 @@ namespace Eval.Core
             };
         }
 
+        public void Abort()
+        {
+            AbortRequested = true;
+        }
+
         private bool IsBetterThan(IPhenotype subject, IPhenotype comparedTo)
         {
             if (comparedTo == null)
-            {
                 return true;
-            }
-            switch (EAConfiguration.Mode)
+
+            return EAConfiguration.Mode switch
             {
-                case EAMode.MaximizeFitness:
-                    return subject.Fitness > comparedTo.Fitness;
-                case EAMode.MinimizeFitness:
-                    return subject.Fitness < comparedTo.Fitness;
-                default:
-                    throw new NotImplementedException($"IsBetterThan not implemented for EA mode {EAConfiguration.Mode}");
-            }
+                EAMode.MaximizeFitness => subject.Fitness > comparedTo.Fitness,
+                EAMode.MinimizeFitness => subject.Fitness < comparedTo.Fitness,
+                _ => throw new NotImplementedException($"IsBetterThan not implemented for EA mode {EAConfiguration.Mode}"),
+            };
         }
 
         protected virtual bool RunCondition(int generation)
         {
-            if (Abort)
+            if (AbortRequested)
             {
                 TerminationEvent?.Invoke(TerminationReason.Aborted);
                 return false;
@@ -264,7 +265,7 @@ namespace Eval.Core
                 foreach (var p in population)
                 {
                     p.Evaluate();
-                    PhenotypeEvaluatedEvent?.Invoke(p);
+                    PhenotypeEvaluatedEvent?.Invoke((TPhenotype)p);
                 }
             }
             else
@@ -283,7 +284,7 @@ namespace Eval.Core
         private void FitnessWorker(object state)
         {
             var input = state as object[];
-            var pheno = input[0] as IPhenotype;
+            var pheno = input[0] as TPhenotype;
             var countdownEvent = input[1] as CountdownEvent;
 
             pheno.Evaluate();

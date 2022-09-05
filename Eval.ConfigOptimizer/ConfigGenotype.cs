@@ -22,6 +22,7 @@ namespace Eval.ConfigOptimizer
         public CrossoverType CrossoverType { get; set; }
         public AdultSelectionType AdultSelectionType { get; set; }
         public ParentSelectionType ParentSelectionType { get; set; }
+        public MutationStrategy MutationStrategy { get; set; }
         public double CrossoverRate { get; set; }
         public double MutationRate { get; set; }
         public int TournamentSize { get; set; }
@@ -43,6 +44,7 @@ namespace Eval.ConfigOptimizer
 
         public TimeSpan? MaxDuration => null;
 
+
         public ConfigGenotype()
             : base(builder => builder
                 .DefineParameter(configGenotype => configGenotype.PopulationSize, 10, 200)
@@ -50,6 +52,7 @@ namespace Eval.ConfigOptimizer
                 .DefineParameter(configGenotype => configGenotype.CrossoverType)
                 .DefineParameter(configGenotype => configGenotype.AdultSelectionType)
                 .DefineParameter(configGenotype => configGenotype.ParentSelectionType)
+                .DefineParameter(configGenotype => configGenotype.MutationStrategy)
                 .DefineParameter(configGenotype => configGenotype.CrossoverRate, 0, 1)
                 .DefineParameter(configGenotype => configGenotype.MutationRate, 0, 1)
                 .DefineParameter(configGenotype => configGenotype.TournamentSize, 2, 10)

@@ -23,7 +23,7 @@ namespace Eval.Test.Unit.EATests
     [TestClass]
     public class EATests
     {
-        private TestEA _ea;
+        private TestEA _ea = null!;
         private EAConfiguration _config = new EAConfiguration
         {
             PopulationSize = 10,
@@ -36,7 +36,7 @@ namespace Eval.Test.Unit.EATests
         [TestInitialize]
         public void Init()
         {
-            _ea = new TestEA(_config, new DefaultRandomNumberGenerator());
+            _ea = new TestEA(_config, new FastRandomNumberGenerator());
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace Eval.Test.Unit.EATests
         [TestMethod]
         public void SeededEvolveShouldCallCreateMethodsCorrectNumberOfTimes()
         {
-            var _ea = new TestEASeeded(_config, new DefaultRandomNumberGenerator());
+            var _ea = new TestEASeeded(_config, new FastRandomNumberGenerator());
             _ea.Evolve();
             _ea.CreateRandomPhenotypeCount.Should().Be(10);
             _ea.CreatePhenotypeCount.Should().Be(10);
@@ -91,7 +91,7 @@ namespace Eval.Test.Unit.EATests
         {
             var statscounter1 = 0;
             _config.CalculateStatistics = true;
-            var _ea = new TestEASeeded(_config, new DefaultRandomNumberGenerator());
+            var _ea = new TestEASeeded(_config, new FastRandomNumberGenerator());
             _ea.PopulationStatisticsCalculated += (s) => statscounter1++;
             _ea.Evolve();
             _ea.CalculateStatisticsCount.Should().Be(2);
@@ -99,7 +99,7 @@ namespace Eval.Test.Unit.EATests
 
             var statscounter2 = 0;
             _config.CalculateStatistics = false;
-            _ea = new TestEASeeded(_config, new DefaultRandomNumberGenerator());
+            _ea = new TestEASeeded(_config, new FastRandomNumberGenerator());
             _ea.PopulationStatisticsCalculated += (s) => statscounter2++;
             _ea.Evolve();
             _ea.CalculateStatisticsCount.Should().Be(2);
@@ -112,7 +112,7 @@ namespace Eval.Test.Unit.EATests
             var ok = false;
             _config.MaximumGenerations = 500000;
             _config.MaxDuration = new TimeSpan(0, 0, 1);
-            _ea = new TestEA(_config, new DefaultRandomNumberGenerator());
+            _ea = new TestEA(_config, new FastRandomNumberGenerator());
             _ea.TerminationEvent += (r) =>
             {
                 if (r == TerminationReason.DurationLimitReached)

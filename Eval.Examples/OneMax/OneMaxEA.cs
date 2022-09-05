@@ -112,7 +112,7 @@ namespace Eval.Examples
                 CalculateStatistics = true
             };
 
-            var onemaxEA = new OneMaxEA(config, new DefaultRandomNumberGenerator());
+            var onemaxEA = new OneMaxEA(config, new FastRandomNumberGenerator());
 
             var stopwatchtot = new Stopwatch();
             var stopwatchgen = new Stopwatch();

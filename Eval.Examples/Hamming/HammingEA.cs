@@ -22,7 +22,7 @@ using System.Text;
 namespace Eval.Examples
 {
     
-    class StringGenotype : Genotype
+    public class StringGenotype : Genotype
     {
         public string str;
 
@@ -33,18 +33,18 @@ namespace Eval.Examples
 
         public override IGenotype Clone()
         {
-            var geno = new StringGenotype(string.Copy(str));
+            var geno = new StringGenotype(str);
             return geno;
         }
 
         public override IGenotype CrossoverWith(IGenotype other, CrossoverType crossover, IRandomNumberGenerator random)
         {
-            var newgeno = new StringGenotype(null);
-            var og = other as StringGenotype;
+            var newgeno = new StringGenotype(string.Empty);
+            var og = (StringGenotype)other;
             switch (crossover)
             {
                 case CrossoverType.Uniform:
-                    StringBuilder sb = new StringBuilder();
+                    var sb = new StringBuilder();
                     for (int i = 0; i < Math.Min(str.Length, og.str.Length); i++)
                         sb.Append(random.NextBool() ? str[i] : og.str[i]);
                     newgeno.str = sb.ToString();
@@ -65,7 +65,7 @@ namespace Eval.Examples
             if (random.NextDouble() >= probability)
                 return;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(str);
             if (str.Length == 0)
                 sb.Append((char)random.Next(32, 122));
@@ -91,26 +91,23 @@ namespace Eval.Examples
     }
 
     
-    class HammingPhenotype : Phenotype
+    public class HammingPhenotype : Phenotype<StringGenotype>
     {
-        private StringGenotype geno;
-
-        public HammingPhenotype(IGenotype genotype) : base(genotype)
+        public HammingPhenotype(StringGenotype genotype) : base(genotype)
         {
-            geno = genotype as StringGenotype;
         }
 
         protected override double CalculateFitness()
         {
-            int hammingdist = 2 * Math.Abs(geno.str.Length - HammingEA.TARGET.Length);
-            for (int i = 0; i < Math.Min(geno.str.Length, HammingEA.TARGET.Length); i++)
-                hammingdist += geno.str[i] == HammingEA.TARGET[i] ? 0 : 1;
+            int hammingdist = 2 * Math.Abs(Genotype.str.Length - HammingEA.TARGET.Length);
+            for (int i = 0; i < Math.Min(Genotype.str.Length, HammingEA.TARGET.Length); i++)
+                hammingdist += Genotype.str[i] == HammingEA.TARGET[i] ? 0 : 1;
             return hammingdist;
         }
 
         public override string ToString()
         {
-            return geno.ToString();
+            return Genotype.ToString();
         }
     }
 
@@ -119,25 +116,25 @@ namespace Eval.Examples
     /// This is a minimization problem using hamming distance for fitness function
     /// </summary>
     
-    public class HammingEA : EA
+    public class HammingEA : EA<HammingPhenotype>
     {
         public static string TARGET = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
         public HammingEA(IEAConfiguration config, IRandomNumberGenerator rng) : base(config, rng)
         {}
 
-        protected override IPhenotype CreatePhenotype(IGenotype genotype)
+        protected override HammingPhenotype CreatePhenotype(IGenotype genotype)
         {
-            var phenotype = new HammingPhenotype(genotype);
+            var phenotype = new HammingPhenotype((StringGenotype)genotype);
             return phenotype;
         }
 
-        protected override IPhenotype CreateRandomPhenotype()
+        protected override HammingPhenotype CreateRandomPhenotype()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < RNG.Next(1, 10); i++)
                 sb.Append((char)RNG.Next(32, 122));
-            HammingPhenotype p = new HammingPhenotype(new StringGenotype(sb.ToString()));
+            var p = new HammingPhenotype(new StringGenotype(sb.ToString()));
             return p;
         }
 
@@ -146,15 +143,15 @@ namespace Eval.Examples
         {
             var config = new EAConfiguration
             {
-                PopulationSize = 10,
+                PopulationSize = 100,
                 OverproductionFactor = 1.0,
                 MaximumGenerations = 100000,
-                CrossoverType = CrossoverType.OnePoint,
+                CrossoverType = CrossoverType.Uniform,
                 AdultSelectionType = AdultSelectionType.GenerationalReplacement,
                 ParentSelectionType = ParentSelectionType.Tournament,
-                CrossoverRate = 0.18,
+                CrossoverRate = 0.1,
                 MutationRate = 0.99,
-                TournamentSize = 19,
+                TournamentSize = 10,
                 TournamentProbability = 0.77,
                 TargetFitness = 0.0,
                 Mode = EAMode.MinimizeFitness,
@@ -162,12 +159,12 @@ namespace Eval.Examples
                 CalculateStatistics = true
             };
 
-            var hammingEA = new HammingEA(config, new DefaultRandomNumberGenerator());
+            var hammingEA = new HammingEA(config, new FastRandomNumberGenerator());
 
             var stopwatchtot = new Stopwatch();
             var stopwatchgen = new Stopwatch();
 
-            PopulationStatistics currentStats = new PopulationStatistics();
+            var currentStats = new PopulationStatistics();
 
             hammingEA.PopulationStatisticsCalculated += (stats) =>
             {
@@ -180,7 +177,7 @@ namespace Eval.Examples
                 var genruntime = stopwatchgen.Elapsed;
                 Console.WriteLine();
                 Console.WriteLine(string.Format("G# {0}    best_f: {1:F2}    avg_f: {2:F2}    SD: {3:F2}    Progress: {4,5:F2}    Gen: {5}   Tot: {6}", gen, hammingEA.Best.Fitness, currentStats.AverageFitness, currentStats.StandardDeviationFitness, progress, genruntime, totruntime));
-                Console.WriteLine("Generation winner: " + ((StringGenotype)hammingEA.Best?.Genotype));
+                Console.WriteLine("Generation winner: " + (hammingEA.Best?.Genotype));
 
                 stopwatchgen.Restart();
             };
@@ -204,13 +201,11 @@ namespace Eval.Examples
             
         private static void WriteResultToFile(List<PopulationStatistics> stats)
         {
-            using (StreamWriter file = new StreamWriter($"hamming_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.csv"))
+            using var file = new StreamWriter($"hamming_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.csv");
+            file.WriteLine("MinFitness,MaxFitness,AverageFitness,StandardDeviationFitness,VarianceFitness");
+            foreach (var stat in stats)
             {
-                file.WriteLine("MinFitness,MaxFitness,AverageFitness,StandardDeviationFitness,VarianceFitness");
-                foreach (var stat in stats)
-                {
-                    file.WriteLine($"{stat.MinFitness},{stat.MaxFitness},{stat.AverageFitness},{stat.StandardDeviationFitness},{stat.VarianceFitness}");
-                }
+                file.WriteLine($"{stat.MinFitness},{stat.MaxFitness},{stat.AverageFitness},{stat.StandardDeviationFitness},{stat.VarianceFitness}");
             }
         }
     }

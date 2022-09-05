@@ -80,7 +80,7 @@ namespace Eval.Examples.MultithreadTest
                 ReevaluateElites = false,
                 MultiThreaded = true
             };
-            var ea = new ThreadEA(config, new DefaultRandomNumberGenerator());
+            var ea = new ThreadEA(config, new FastRandomNumberGenerator());
             ea.NewGenerationEvent += gen => Console.WriteLine($"Generation {gen}");
             ea.NewBestFitnessEvent += (best, gen) => Console.WriteLine($"New best at generation {gen}. Fitness = {best.Fitness}");
             ea.Evolve();

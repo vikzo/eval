@@ -116,7 +116,7 @@ namespace Eval.Examples
                 CalculateStatistics = true
             };
 
-            var lolzea = new LOLZEA(config, new DefaultRandomNumberGenerator());
+            var lolzea = new LOLZEA(config, new FastRandomNumberGenerator());
 
             var stopwatchtot = new Stopwatch();
             var stopwatchgen = new Stopwatch();

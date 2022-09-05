@@ -65,7 +65,7 @@ namespace Eval.Test.Unit.Selection.Adult
             var p1 = new P("p1", 0.0);
             population.Add(p1);
 
-            var genmix = new GenerationalMixingAdultSelection(new DefaultRandomNumberGenerator());
+            var genmix = new GenerationalMixingAdultSelection(new FastRandomNumberGenerator());
             genmix.SelectAdults(offspring, population, 2, EAMode.MaximizeFitness);
 
             Assert.IsTrue(population.Contains(o0));
@@ -89,7 +89,7 @@ namespace Eval.Test.Unit.Selection.Adult
             var p1 = new P("p1", 0.0);
             population.Add(p1);
 
-            var genmix = new GenerationalMixingAdultSelection(new DefaultRandomNumberGenerator());
+            var genmix = new GenerationalMixingAdultSelection(new FastRandomNumberGenerator());
             genmix.SelectAdults(offspring, population, 2, EAMode.MinimizeFitness);
 
             Assert.IsFalse(population.Contains(o0));
@@ -113,7 +113,7 @@ namespace Eval.Test.Unit.Selection.Adult
             var p1 = new P("p1", 0.0);
             population.Add(p1);
 
-            var genmix = new GenerationalMixingAdultSelection(new DefaultRandomNumberGenerator());
+            var genmix = new GenerationalMixingAdultSelection(new FastRandomNumberGenerator());
             genmix.Invoking(g => g.SelectAdults(offspring, population, 3, EAMode.MaximizeFitness))
                 .Should().Throw<InvalidOperationException>();
         }

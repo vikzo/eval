@@ -32,7 +32,7 @@ namespace Eval.Test.Unit.Models
         [TestInitialize]
         public void TestInitialize()
         {
-            random = new DefaultRandomNumberGenerator();
+            random = new FastRandomNumberGenerator();
         }
 
         [TestMethod]

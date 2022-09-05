@@ -49,7 +49,7 @@ namespace Eval.Test.Unit.EATests
 
             for (int i = 0; i < 10; i++)
             {
-                var hammingEA = new HammingEA(config, new DefaultRandomNumberGenerator());
+                var hammingEA = new HammingEA(config, new FastRandomNumberGenerator());
                 hammingEA.TerminationEvent += (r) =>
                 {
                     if (r == TerminationReason.FitnessLimitReached)

@@ -32,12 +32,12 @@ namespace Eval.Test.Unit.Util
     [TestClass]
     public class AliasRouletteTests
     {
-        private DefaultRandomNumberGenerator random;
+        private FastRandomNumberGenerator random;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            random = new DefaultRandomNumberGenerator("seed".GetHashCode());
+            random = new FastRandomNumberGenerator("seed".GetHashCode());
         }
 
         [TestMethod]

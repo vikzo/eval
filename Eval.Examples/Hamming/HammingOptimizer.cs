@@ -36,7 +36,7 @@ namespace Eval.Examples.Hamming
         }
     }
 
-    public class HammingOptimizer : ConfigOptimizerEA
+    public class HammingOptimizer : ConfigOptimizerEA<EA<HammingPhenotype>>
     {
         public override bool TargetEA_ReevaluateElites => false;
         public override int TargetEA_MaximumGenerations => 1000;
@@ -49,7 +49,7 @@ namespace Eval.Examples.Hamming
         {
         }
 
-        protected override EA CreateTargetEA(IEAConfiguration targetConfig, IRandomNumberGenerator random)
+        protected override EA<HammingPhenotype> CreateTargetEA(IEAConfiguration targetConfig, IRandomNumberGenerator random)
         {
             return new HammingEA(targetConfig, random);
         }
@@ -61,7 +61,7 @@ namespace Eval.Examples.Hamming
 
         protected override IRandomNumberGenerator CreateRandomNumberGenerator()
         {
-            return new DefaultRandomNumberGenerator();
+            return new FastRandomNumberGenerator();
         }
 
         public static void Run()
@@ -70,7 +70,7 @@ namespace Eval.Examples.Hamming
             optimizerConfig.PopulationSize = 100;
             optimizerConfig.MultiThreaded = true;
 
-            var optimizer = new HammingOptimizer(optimizerConfig, new DefaultRandomNumberGenerator());
+            var optimizer = new HammingOptimizer(optimizerConfig, new FastRandomNumberGenerator());
             optimizer.Evolve();
         }
     }

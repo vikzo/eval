@@ -25,6 +25,7 @@ namespace Eval.Core.Config
         public CrossoverType CrossoverType { get; set;  }
         public AdultSelectionType AdultSelectionType { get; set; }
         public ParentSelectionType ParentSelectionType { get; set; }
+        public MutationStrategy MutationStrategy { get; set; }
         public double CrossoverRate { get; set; }
         public double MutationRate { get; set; }
         public int TournamentSize { get; set; }

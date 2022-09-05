@@ -17,7 +17,8 @@ using System;
 
 namespace Eval.ConfigOptimizer
 {
-    public abstract class ConfigOptimizerEA : EA
+
+    public abstract class ConfigOptimizerEA<EAType> : EA<ConfigPhenotype<EAType>> where EAType : EA<IPhenotype>
     {
         public abstract bool TargetEA_ReevaluateElites { get; }
         public abstract int TargetEA_MaximumGenerations { get; }
@@ -50,14 +51,14 @@ namespace Eval.ConfigOptimizer
             }
         }
 
-        protected override IPhenotype CreatePhenotype(IGenotype genotype)
+        protected override ConfigPhenotype<EAType> CreatePhenotype(IGenotype genotype)
         {
             var configGeno = genotype as ConfigGenotype;
             var targetEA = CreateTargetEA(configGeno, CreateRandomNumberGenerator());
-            return new ConfigPhenotype(configGeno, TargetEA_FitnessRuns, targetEA);
+            return new ConfigPhenotype<EAType>(configGeno, TargetEA_FitnessRuns, targetEA);
         }
 
-        protected override IPhenotype CreateRandomPhenotype()
+        protected override ConfigPhenotype<EAType> CreateRandomPhenotype()
         {
             var geno = CreateRandomizedConfigGenotype();
             geno.Randomize(RNG);
@@ -83,7 +84,7 @@ namespace Eval.ConfigOptimizer
             return result;
         }
 
-        protected abstract EA CreateTargetEA(IEAConfiguration targetConfig, IRandomNumberGenerator random);
+        protected abstract EAType CreateTargetEA(IEAConfiguration targetConfig, IRandomNumberGenerator random);
         protected abstract ConfigGenotype CreateRandomizedConfigGenotype();
         protected abstract IRandomNumberGenerator CreateRandomNumberGenerator();
 

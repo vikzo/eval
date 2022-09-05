@@ -93,7 +93,7 @@ namespace Eval.Test.Unit.Models
         {
             var g = new BinaryGenotype(new BitArrayList(10000, false));
 
-            g.Mutate(1.0, new DefaultRandomNumberGenerator("this is sed".GetHashCode()));
+            g.Mutate(1.0, new FastRandomNumberGenerator("this is sed".GetHashCode()));
 
             g.Should().AllBeEquivalentTo(true);
         }
@@ -103,7 +103,7 @@ namespace Eval.Test.Unit.Models
         {
             var g = new BinaryGenotype(new BitArrayList(10000, false));
 
-            g.Mutate(0.0, new DefaultRandomNumberGenerator("this is sed".GetHashCode()));
+            g.Mutate(0.0, new FastRandomNumberGenerator("this is sed".GetHashCode()));
 
             g.Should().AllBeEquivalentTo(false);
         }
@@ -117,7 +117,7 @@ namespace Eval.Test.Unit.Models
             foreach (var prob in probabilities)
             {
                 var g = new BinaryGenotype(new BitArrayList(n, false));
-                g.Mutate(prob, new DefaultRandomNumberGenerator("this is sed".GetHashCode()));
+                g.Mutate(prob, new FastRandomNumberGenerator("this is sed".GetHashCode()));
                 (g.Count(b => b == true) / (double)n).Should().BeApproximately(prob, prob * 0.05); // 5% allowed delta
             }
         }

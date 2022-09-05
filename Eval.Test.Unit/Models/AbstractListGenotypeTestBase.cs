@@ -47,7 +47,7 @@ namespace Eval.Test.Unit.Models
             genoLength.Should().BeGreaterThan(1);
 
             randomMock = new Mock<IRandomNumberGenerator>();
-            random = new DefaultRandomNumberGenerator();
+            random = new FastRandomNumberGenerator();
             
             g1 = GetFirstGenotype(CreateElements);
             g2 = GetSecondGenotype(CreateElements);

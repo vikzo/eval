@@ -25,7 +25,7 @@ namespace Eval.Test.Unit.Selection.Parent
         [TestMethod]
         public void SigmaScalingParentSelection_VerifySelectionProbability()
         {
-            var random = new DefaultRandomNumberGenerator("seed".GetHashCode());
+            var random = new FastRandomNumberGenerator("seed".GetHashCode());
             var population = new Population(11);
             var index = 0;
             population.Fill(() => new TestPhenotype(index++, index * index));

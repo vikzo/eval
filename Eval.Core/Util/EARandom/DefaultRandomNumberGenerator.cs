@@ -13,7 +13,7 @@ using System.Text;
 
 namespace Eval.Core.Util.EARandom
 {
-    
+
     public class DefaultRandomNumberGenerator : Random, IRandomNumberGenerator
     {
         /// <summary>

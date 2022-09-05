@@ -48,7 +48,7 @@ namespace Eval.Test.Unit.EATests
 
             for (int i = 0; i < 100; i++)
             {
-                var onemaxEA = new OneMaxEA(config, new DefaultRandomNumberGenerator());
+                var onemaxEA = new OneMaxEA(config, new FastRandomNumberGenerator());
                 onemaxEA.TerminationEvent += (r) =>
                 {
                     if (r == TerminationReason.FitnessLimitReached)
