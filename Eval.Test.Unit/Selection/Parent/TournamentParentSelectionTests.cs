@@ -28,7 +28,7 @@ namespace Eval.Test.Unit.Selection.Parent
         public void TournamentParentSelection_VerifySelectionProbability()
         {
             // Test tournament selection by comparing it to the naive tournament selection implementation.
-            var random = new DefaultRandomNumberGenerator("seed".GetHashCode());
+            var random = new DefaultRandomNumberGenerator(1337);
             for (int tournamentSize = 2; tournamentSize <= 10; tournamentSize++)
             {
                 var population = new Population(11);
@@ -60,7 +60,10 @@ namespace Eval.Test.Unit.Selection.Parent
                     ((TestPhenotype)b).Count++;
                 }
 
-                var counts = population.Cast<TestPhenotype>().Select(p => p.Count).Zip(population.Cast<TestPhenotype>().Select(p => p.Count2), (c1, c2) => (c1, c2));
+                var counts = population
+                    .Cast<TestPhenotype>()
+                    .Select(p => p.Count)
+                    .Zip(population.Cast<TestPhenotype>().Select(p => p.Count2), (c1, c2) => (c1, c2));
 
                 foreach (var count in counts)
                 {

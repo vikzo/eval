@@ -45,8 +45,8 @@ namespace Eval.Core
         public int Generation { get; private set; }
         public TimeSpan GetDuration => _stopwatch.Elapsed;
 
-        public IPhenotype GenerationalBest { get; protected set; }
-        public IPhenotype Best { get; protected set; }
+        public IPhenotype GenerationalBest { get; private set; }
+        public IPhenotype Best { get; private set; }
         public bool AbortRequested { get; private set; }
 
         protected IParentSelection ParentSelection;
@@ -73,15 +73,31 @@ namespace Eval.Core
             } 
         }
 
-        public EA(IEAConfiguration configuration, IRandomNumberGenerator rng)
+        public EA(
+            IEAConfiguration configuration, 
+            IRandomNumberGenerator rng = null)
         {
             EAConfiguration = configuration;
-            RNG = rng;
+            RNG = rng ?? new DefaultRandomNumberGenerator();
 
             PopulationStatistics = new List<PopulationStatistics>(512);
             Elites = new List<IPhenotype>(Math.Max(EAConfiguration.Elites, 0));
             AdultSelection = CreateAdultSelection();
             ParentSelection = CreateParentSelection();
+        }
+
+        public EA(
+            IEAConfiguration configuration, 
+            IAdultSelection adultSelection,
+            IParentSelection parentSelection,
+            Population population,
+            IRandomNumberGenerator rng = null)
+        {
+            EAConfiguration = configuration;
+            AdultSelection = adultSelection;
+            ParentSelection = parentSelection;
+            Population = population;
+            RNG = rng ?? new DefaultRandomNumberGenerator();
         }
 
         protected abstract IPhenotype CreateRandomPhenotype();
@@ -130,7 +146,10 @@ namespace Eval.Core
             IsRunning = true;
             IsStarted = true;
 
-            Population = CreateInitialPopulation(EAConfiguration.PopulationSize);
+            if (Population == null || !Population.IsFilled) 
+            { 
+                Population = CreateInitialPopulation(EAConfiguration.PopulationSize);
+            }
             _offspringSize = (int)(EAConfiguration.PopulationSize * Math.Max(EAConfiguration.OverproductionFactor, 1));
             _offspring = new Population(_offspringSize);
 

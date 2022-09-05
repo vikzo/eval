@@ -50,6 +50,16 @@ namespace Eval.Core.Models
             _index = 0;
         }
 
+        public Population(IEnumerable<IPhenotype> initalPopulation)
+        {
+            _population = new IPhenotype[initalPopulation.Count()];
+            _index = 0;
+            for (int i = 0; i < Size; i++)
+            {
+                Add(initalPopulation.ElementAt(i));
+            }
+        }
+
         public IPhenotype this[int key]
         {
             get => _population[key];
@@ -99,17 +109,12 @@ namespace Eval.Core.Models
 
                 if (!IsSorted)
                 {
-                    switch (mode)
+                    elite = mode switch
                     {
-                        case EAMode.MaximizeFitness:
-                            elite = GetMaxFitness();
-                            break;
-                        case EAMode.MinimizeFitness:
-                            elite = GetMinFitness();
-                            break;
-                        default:
-                            throw new NotImplementedException(mode.ToString());
-                    }
+                        EAMode.MaximizeFitness => GetMaxFitness(),
+                        EAMode.MinimizeFitness => GetMinFitness(),
+                        _ => throw new NotImplementedException(mode.ToString()),
+                    };
                 }
 
                 Clear();
