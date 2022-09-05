@@ -8,16 +8,13 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Eval.Core.Config;
 using Eval.Core.Models;
 using Eval.Core.Selection.Adult;
 using Eval.Core.Util.EARandom;
-using Eval.Core.Util.Roulette;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Eval.Test.Unit.Selection.Adult
 {
@@ -36,7 +33,7 @@ namespace Eval.Test.Unit.Selection.Adult
                 F = fitness;
                 Evaluate();
             }
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 return obj is P p && Name == p.Name;
             }
@@ -65,7 +62,7 @@ namespace Eval.Test.Unit.Selection.Adult
             var p1 = new P("p1", 0.0);
             population.Add(p1);
 
-            var genmix = new GenerationalMixingAdultSelection(new FastRandomNumberGenerator());
+            var genmix = new GenerationalMixingAdultSelection(new DefaultRandomNumberGenerator());
             genmix.SelectAdults(offspring, population, 2, EAMode.MaximizeFitness);
 
             Assert.IsTrue(population.Contains(o0));
@@ -89,7 +86,7 @@ namespace Eval.Test.Unit.Selection.Adult
             var p1 = new P("p1", 0.0);
             population.Add(p1);
 
-            var genmix = new GenerationalMixingAdultSelection(new FastRandomNumberGenerator());
+            var genmix = new GenerationalMixingAdultSelection(new DefaultRandomNumberGenerator());
             genmix.SelectAdults(offspring, population, 2, EAMode.MinimizeFitness);
 
             Assert.IsFalse(population.Contains(o0));
@@ -113,7 +110,7 @@ namespace Eval.Test.Unit.Selection.Adult
             var p1 = new P("p1", 0.0);
             population.Add(p1);
 
-            var genmix = new GenerationalMixingAdultSelection(new FastRandomNumberGenerator());
+            var genmix = new GenerationalMixingAdultSelection(new DefaultRandomNumberGenerator());
             genmix.Invoking(g => g.SelectAdults(offspring, population, 3, EAMode.MaximizeFitness))
                 .Should().Throw<InvalidOperationException>();
         }

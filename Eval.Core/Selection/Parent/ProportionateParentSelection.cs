@@ -7,7 +7,6 @@
  */
 #endregion
 
-using System;
 using System.Collections.Generic;
 using Eval.Core.Config;
 using Eval.Core.Models;
@@ -16,7 +15,7 @@ using Eval.Core.Util.Roulette;
 
 namespace Eval.Core.Selection.Parent
 {
-    
+
     public class ProportionateParentSelection : IParentSelection
     {
         public IEnumerable<(IPhenotype, IPhenotype)> SelectParents(Population population, int n, EAMode mode, IRandomNumberGenerator random)

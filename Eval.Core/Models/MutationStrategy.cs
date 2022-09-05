@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Eval.Core.Models
+﻿namespace Eval.Core.Models
 {
     public enum MutationStrategy
     {

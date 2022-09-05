@@ -7,12 +7,11 @@
  */
 #endregion
 
-using System;
 using Eval.Core.Util.EARandom;
 
 namespace Eval.Core.Models
 {
-    
+
     public abstract class Genotype : IGenotype
     {
         public abstract IGenotype Clone();

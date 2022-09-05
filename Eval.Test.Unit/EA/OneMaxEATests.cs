@@ -48,7 +48,7 @@ namespace Eval.Test.Unit.EATests
 
             for (int i = 0; i < 100; i++)
             {
-                var onemaxEA = new OneMaxEA(config, new FastRandomNumberGenerator());
+                var onemaxEA = new OneMaxEA(config, new DefaultRandomNumberGenerator());
                 onemaxEA.TerminationEvent += (r) =>
                 {
                     if (r == TerminationReason.FitnessLimitReached)
@@ -65,20 +65,15 @@ namespace Eval.Test.Unit.EATests
 
     class OneMaxPhenotype : Phenotype
     {
-        private int onecount;
-        private int[] values;
-
-        public OneMaxPhenotype(IGenotype genotype)
-            : base(genotype)
+        public OneMaxPhenotype(IGenotype genotype) : base(genotype)
         {
-
         }
 
         protected override double CalculateFitness()
         {
-            BinaryGenotype geno = (BinaryGenotype)Genotype;
-            onecount = 0;
-            values = new int[geno.Bits.Count];
+            var geno = (BinaryGenotype)Genotype;
+            var onecount = 0;
+            var values = new int[geno.Bits.Count];
             for (int i = 0; i < values.Length; i++)
             {
                 values[i] = geno.Bits[i] ? 1 : 0;

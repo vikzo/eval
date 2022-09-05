@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using Eval.Core;
 using Eval.Core.Config;
 using Eval.Core.Models;
 using FluentAssertions;
@@ -22,7 +21,7 @@ namespace Eval.Test.Unit.Models
     public class PopulationTests
     {
         private readonly int preferredPopSize = 120;
-        private Population population;
+        private Population population = null!;
 
         [TestInitialize]
         public void TestInitialize()
@@ -158,16 +157,16 @@ namespace Eval.Test.Unit.Models
 
         private static (IList<Mock<IPhenotype>>, Func<IPhenotype>) FillWithMocks(
             Population population,
-            Action<Mock<IPhenotype>> setups = null)
+            Action<Mock<IPhenotype>>? setups = null)
         {
             var mocks = new List<Mock<IPhenotype>>();
-            Func<IPhenotype> phenotypeMockFactory = () =>
+            IPhenotype phenotypeMockFactory()
             {
                 var mock = new Mock<IPhenotype>();
                 setups?.Invoke(mock);
                 mocks.Add(mock);
                 return mock.Object;
-            };
+            }
             population.Fill(phenotypeMockFactory);
             return (mocks, phenotypeMockFactory);
         }
@@ -316,11 +315,13 @@ namespace Eval.Test.Unit.Models
         [TestMethod]
         public void TestGetProbabilitySelectorWithMaximizeMode()
         {
-            var pMocks = new List<Mock<IPhenotype>>();
-            pMocks.Add(CreatePhenotypeMock(1));
-            pMocks.Add(CreatePhenotypeMock(2));
-            pMocks.Add(CreatePhenotypeMock(3));
-            pMocks.Add(CreatePhenotypeMock(5));
+            var pMocks = new List<Mock<IPhenotype>>
+            {
+                CreatePhenotypeMock(1),
+                CreatePhenotypeMock(2),
+                CreatePhenotypeMock(3),
+                CreatePhenotypeMock(5)
+            };
 
             var expected = new List<double>() { 1, 2, 3, 5 };
 
@@ -341,11 +342,13 @@ namespace Eval.Test.Unit.Models
         [TestMethod]
         public void TestGetProbabilitySelectorWithMinimizeMode()
         {
-            var pMocks = new List<Mock<IPhenotype>>();
-            pMocks.Add(CreatePhenotypeMock(1));
-            pMocks.Add(CreatePhenotypeMock(2));
-            pMocks.Add(CreatePhenotypeMock(3));
-            pMocks.Add(CreatePhenotypeMock(5));
+            var pMocks = new List<Mock<IPhenotype>>
+            {
+                CreatePhenotypeMock(1),
+                CreatePhenotypeMock(2),
+                CreatePhenotypeMock(3),
+                CreatePhenotypeMock(5)
+            };
 
             var expected = new List<double>() { 5, 4, 3, 1 };
 
@@ -366,9 +369,11 @@ namespace Eval.Test.Unit.Models
         [TestMethod]
         public void GetProbabilitySelectorIsNotMutable()
         {
-            population = new Population(2);
-            population.Add(CreatePhenotypeMock(1).Object);
-            population.Add(CreatePhenotypeMock(2).Object);
+            population = new Population(2)
+            {
+                CreatePhenotypeMock(1).Object,
+                CreatePhenotypeMock(2).Object
+            };
 
             var firstSelector = population.GetProbabilitySelector(EAMode.MinimizeFitness);
 

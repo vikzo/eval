@@ -34,9 +34,9 @@ namespace Eval.Test.Unit.Models
         // Custom CharGenotype tests below this line ----------------------------------------------------
 
         private readonly int genoLength = 10;
-        private CharGenotype g1;
-        private CharGenotype g2;
-        private Mock<IRandomNumberGenerator> randomMock;
+        private CharGenotype g1 = null!;
+        private CharGenotype g2 = null!;
+        private Mock<IRandomNumberGenerator> randomMock = null!;
 
         [TestInitialize]
         public void CharGenotypeTests_TestInitialize()
@@ -160,6 +160,6 @@ namespace Eval.Test.Unit.Models
     [TestClass]
     public class CharGenotypeBaseTests : GenotypeTestBase<CharGenotype>
     {
-        protected override CharGenotype CreateGenotype => new CharGenotype(new string('A', 10));
+        protected override CharGenotype CreateGenotype => new(new string('A', 10));
     }
 }

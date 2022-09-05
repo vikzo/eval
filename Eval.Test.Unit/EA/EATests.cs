@@ -16,7 +16,6 @@ using Eval.Core.Util.EARandom;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.IO;
 
 namespace Eval.Test.Unit.EATests
 {
@@ -36,7 +35,7 @@ namespace Eval.Test.Unit.EATests
         [TestInitialize]
         public void Init()
         {
-            _ea = new TestEA(_config, new FastRandomNumberGenerator());
+            _ea = new TestEA(_config, new DefaultRandomNumberGenerator());
         }
 
         [TestMethod]
@@ -50,7 +49,7 @@ namespace Eval.Test.Unit.EATests
         [TestMethod]
         public void SeededEvolveShouldCallCreateMethodsCorrectNumberOfTimes()
         {
-            var _ea = new TestEASeeded(_config, new FastRandomNumberGenerator());
+            var _ea = new TestEASeeded(_config, new DefaultRandomNumberGenerator());
             _ea.Evolve();
             _ea.CreateRandomPhenotypeCount.Should().Be(10);
             _ea.CreatePhenotypeCount.Should().Be(10);
@@ -91,7 +90,7 @@ namespace Eval.Test.Unit.EATests
         {
             var statscounter1 = 0;
             _config.CalculateStatistics = true;
-            var _ea = new TestEASeeded(_config, new FastRandomNumberGenerator());
+            var _ea = new TestEASeeded(_config, new DefaultRandomNumberGenerator());
             _ea.PopulationStatisticsCalculated += (s) => statscounter1++;
             _ea.Evolve();
             _ea.CalculateStatisticsCount.Should().Be(2);
@@ -99,7 +98,7 @@ namespace Eval.Test.Unit.EATests
 
             var statscounter2 = 0;
             _config.CalculateStatistics = false;
-            _ea = new TestEASeeded(_config, new FastRandomNumberGenerator());
+            _ea = new TestEASeeded(_config, new DefaultRandomNumberGenerator());
             _ea.PopulationStatisticsCalculated += (s) => statscounter2++;
             _ea.Evolve();
             _ea.CalculateStatisticsCount.Should().Be(2);
@@ -112,7 +111,7 @@ namespace Eval.Test.Unit.EATests
             var ok = false;
             _config.MaximumGenerations = 500000;
             _config.MaxDuration = new TimeSpan(0, 0, 1);
-            _ea = new TestEA(_config, new FastRandomNumberGenerator());
+            _ea = new TestEA(_config, new DefaultRandomNumberGenerator());
             _ea.TerminationEvent += (r) =>
             {
                 if (r == TerminationReason.DurationLimitReached)
@@ -134,7 +133,7 @@ namespace Eval.Test.Unit.EATests
 
         protected override double CalculateFitness()
         {
-            var g = Genotype as BinaryGenotype;
+            var g = (BinaryGenotype)Genotype;
             var c = 0;
             for (int i = 0; i < g.Count; i++)
             {

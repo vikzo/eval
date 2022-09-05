@@ -8,11 +8,10 @@
 #endregion
 
 using Eval.Core.Models;
-using System;
 
 namespace Eval.Core
 {
-    
+
     public class EAResult
     {
         public IPhenotype Winner { get; set; }

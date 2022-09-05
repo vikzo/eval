@@ -177,15 +177,12 @@ namespace Eval.Test.Unit.Selection.Parent
 
             if (random.NextDouble() < _prob)
             {
-                switch (mode)
+                return mode switch
                 {
-                    case EAMode.MaximizeFitness:
-                        return pool.Max();
-                    case EAMode.MinimizeFitness:
-                        return pool.Min();
-                    default:
-                        throw new NotImplementedException(mode.ToString());
-                }
+                    EAMode.MaximizeFitness => pool.Max()!,
+                    EAMode.MinimizeFitness => pool.Min()!,
+                    _ => throw new NotImplementedException(mode.ToString()),
+                };
             }
             else
             {

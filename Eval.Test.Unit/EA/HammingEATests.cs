@@ -16,7 +16,6 @@ using Eval.Core.Util.EARandom;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Eval.Test.Unit.EATests
@@ -83,21 +82,21 @@ namespace Eval.Test.Unit.EATests
 
         protected override IPhenotype CreateRandomPhenotype()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i < RNG.Next(1, 10); i++)
                 sb.Append((char)RNG.Next(32, 122));
-            HammingPhenotype p = new HammingPhenotype(new StringGenotype(sb.ToString()));
+            var p = new HammingPhenotype(new StringGenotype(sb.ToString()));
             return p;
         }
     }
 
     class HammingPhenotype : Phenotype
     {
-        private StringGenotype geno;
+        private readonly StringGenotype geno;
 
         public HammingPhenotype(IGenotype genotype) : base(genotype)
         {
-            geno = genotype as StringGenotype;
+            geno = (StringGenotype)genotype;
         }
 
         protected override double CalculateFitness()
@@ -120,18 +119,18 @@ namespace Eval.Test.Unit.EATests
 
         public override IGenotype Clone()
         {
-            var geno = new StringGenotype(string.Copy(str));
+            var geno = new StringGenotype(str);
             return geno;
         }
 
         public override IGenotype CrossoverWith(IGenotype other, CrossoverType crossover, IRandomNumberGenerator random)
         {
-            var newgeno = new StringGenotype(null);
-            var og = other as StringGenotype;
+            var newgeno = new StringGenotype(string.Empty);
+            var og = (StringGenotype)other;
             switch (crossover)
             {
                 case CrossoverType.Uniform:
-                    StringBuilder sb = new StringBuilder();
+                    var sb = new StringBuilder();
                     for (int i = 0; i < Math.Min(str.Length, og.str.Length); i++)
                         sb.Append(random.NextBool() ? str[i] : og.str[i]);
                     newgeno.str = sb.ToString();
@@ -139,7 +138,7 @@ namespace Eval.Test.Unit.EATests
 
                 case CrossoverType.OnePoint:
                     var point = random.Next(Math.Min(str.Length, og.str.Length));
-                    newgeno.str = str.Substring(0, point) + og.str.Substring(point);
+                    newgeno.str = string.Concat(str.AsSpan(0, point), og.str.AsSpan(point));
                     break;
 
                 default: throw new NotImplementedException(crossover.ToString());
@@ -152,7 +151,7 @@ namespace Eval.Test.Unit.EATests
             if (random.NextDouble() >= probability)
                 return;
 
-            StringBuilder sb = new StringBuilder(str);
+            var sb = new StringBuilder(str);
             if (str.Length == 0)
                 sb.Append((char)random.Next(32, 122));
             else

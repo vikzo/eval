@@ -15,8 +15,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eval.Test.Unit.Models
 {
@@ -33,12 +31,12 @@ namespace Eval.Test.Unit.Models
     {
         private const int genoLength = 10; // Must be even
 
-        private Mock<IRandomNumberGenerator> randomMock;
-        private IRandomNumberGenerator random;
-        private GType g1;
-        private GType g2;
-        private EType g1Values;
-        private EType g2Values;
+        private Mock<IRandomNumberGenerator> randomMock = null!;
+        private IRandomNumberGenerator random = null!;
+        private GType g1 = null!;
+        private GType g2 = null!;
+        private EType? g1Values;
+        private EType? g2Values;
 
         [TestInitialize]
         public void TestInitialize()
@@ -47,7 +45,7 @@ namespace Eval.Test.Unit.Models
             genoLength.Should().BeGreaterThan(1);
 
             randomMock = new Mock<IRandomNumberGenerator>();
-            random = new FastRandomNumberGenerator();
+            random = new DefaultRandomNumberGenerator();
             
             g1 = GetFirstGenotype(CreateElements);
             g2 = GetSecondGenotype(CreateElements);
@@ -59,7 +57,7 @@ namespace Eval.Test.Unit.Models
 
             g1Values = g1[0];
             g2Values = g2[0];
-            g1Values.Equals(g2Values).Should().BeFalse("elements of g1 and g2 should not be equal for the sake of testing");
+            g1Values!.Equals(g2Values).Should().BeFalse("elements of g1 and g2 should not be equal for the sake of testing");
         }
 
         private IEnumerable<EType> CreateElements(Func<EType> elementFactory)
@@ -115,12 +113,12 @@ namespace Eval.Test.Unit.Models
                 .Returns(genoLength / 2);
 
             var g1Crossoverg2 = ((GType)g1.CrossoverWith(g2, CrossoverType.OnePoint, randomMock.Object));
-            g1Crossoverg2.Should().StartWith(Enumerable.Repeat(g1Values, genoLength / 2));
-            g1Crossoverg2.Should().EndWith(Enumerable.Repeat(g2Values, genoLength / 2));
+            g1Crossoverg2.Should().StartWith(Enumerable.Repeat(g1Values, genoLength / 2)!);
+            g1Crossoverg2.Should().EndWith(Enumerable.Repeat(g2Values, genoLength / 2)!);
 
             var g2Crossoverg1 = ((GType)g2.CrossoverWith(g1, CrossoverType.OnePoint, randomMock.Object));
-            g2Crossoverg1.Should().StartWith(Enumerable.Repeat(g2Values, genoLength / 2));
-            g2Crossoverg1.Should().EndWith(Enumerable.Repeat(g1Values, genoLength / 2));
+            g2Crossoverg1.Should().StartWith(Enumerable.Repeat(g2Values, genoLength / 2)!);
+            g2Crossoverg1.Should().EndWith(Enumerable.Repeat(g1Values, genoLength / 2)!);
         }
 
         [TestMethod]

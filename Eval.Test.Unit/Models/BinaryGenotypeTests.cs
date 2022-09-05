@@ -8,7 +8,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Eval.Core.Models;
@@ -36,9 +35,9 @@ namespace Eval.Test.Unit.Models
         // Custom BinaryGenotype tests below this line ----------------------------------------------------
 
         private readonly int genoLength = 10;
-        private BinaryGenotype g1;
-        private BinaryGenotype g2;
-        private Mock<IRandomNumberGenerator> randomMock;
+        private BinaryGenotype g1 = null!;
+        private BinaryGenotype g2 = null!;
+        private Mock<IRandomNumberGenerator> randomMock = null!;
 
         [TestInitialize]
         public void BinaryGenotypeTests_TestInitialize()
@@ -93,7 +92,7 @@ namespace Eval.Test.Unit.Models
         {
             var g = new BinaryGenotype(new BitArrayList(10000, false));
 
-            g.Mutate(1.0, new FastRandomNumberGenerator("this is sed".GetHashCode()));
+            g.Mutate(1.0, new DefaultRandomNumberGenerator("this is sed".GetHashCode()));
 
             g.Should().AllBeEquivalentTo(true);
         }
@@ -103,7 +102,7 @@ namespace Eval.Test.Unit.Models
         {
             var g = new BinaryGenotype(new BitArrayList(10000, false));
 
-            g.Mutate(0.0, new FastRandomNumberGenerator("this is sed".GetHashCode()));
+            g.Mutate(0.0, new DefaultRandomNumberGenerator("this is sed".GetHashCode()));
 
             g.Should().AllBeEquivalentTo(false);
         }
@@ -117,7 +116,7 @@ namespace Eval.Test.Unit.Models
             foreach (var prob in probabilities)
             {
                 var g = new BinaryGenotype(new BitArrayList(n, false));
-                g.Mutate(prob, new FastRandomNumberGenerator("this is sed".GetHashCode()));
+                g.Mutate(prob, new DefaultRandomNumberGenerator("this is sed".GetHashCode()));
                 (g.Count(b => b == true) / (double)n).Should().BeApproximately(prob, prob * 0.05); // 5% allowed delta
             }
         }
@@ -182,6 +181,6 @@ namespace Eval.Test.Unit.Models
     [TestClass]
     public class BinaryGenotypeBaseTests : GenotypeTestBase<BinaryGenotype>
     {
-        protected override BinaryGenotype CreateGenotype => new BinaryGenotype(10);
+        protected override BinaryGenotype CreateGenotype => new(10);
     }
 }

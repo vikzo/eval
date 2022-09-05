@@ -10,7 +10,6 @@
 using Newtonsoft.Json;
 using SharpNeatLib.Maths;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Eval.Core.Util.EARandom
 {

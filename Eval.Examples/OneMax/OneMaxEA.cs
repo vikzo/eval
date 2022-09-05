@@ -14,21 +14,14 @@ using Eval.Core.Selection.Adult;
 using Eval.Core.Selection.Parent;
 using Eval.Core.Util;
 using Eval.Core.Util.EARandom;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Eval.Examples
 {
-    
+
     class OneMaxPhenotype : Phenotype
     {
-        private int onecount;
-        private int[] values;
-        
         public OneMaxPhenotype(IGenotype genotype)
             : base(genotype)
         {
@@ -37,9 +30,9 @@ namespace Eval.Examples
 
         protected override double CalculateFitness()
         {
-            BinaryGenotype geno = (BinaryGenotype)Genotype;
-            onecount = 0;
-            values = new int[geno.Bits.Count];
+            var geno = (BinaryGenotype)Genotype;
+            var onecount = 0;
+            var values = new int[geno.Bits.Count];
             for (int i = 0; i < values.Length; i++)
             {
                 values[i] = geno.Bits[i] ? 1 : 0;
@@ -84,10 +77,10 @@ namespace Eval.Examples
 
         protected override IPhenotype CreateRandomPhenotype()
         {
-            BinaryGenotype g = new BinaryGenotype(_bitcount);
+            var g = new BinaryGenotype(_bitcount);
             for (int i = 0; i < _bitcount; i++)
                 g.Bits[i] = RNG.NextBool();
-            OneMaxPhenotype p = new OneMaxPhenotype(g);
+            var p = new OneMaxPhenotype(g);
             return p;
         }
 
@@ -112,12 +105,12 @@ namespace Eval.Examples
                 CalculateStatistics = true
             };
 
-            var onemaxEA = new OneMaxEA(config, new FastRandomNumberGenerator());
+            var onemaxEA = new OneMaxEA(config, new DefaultRandomNumberGenerator());
 
             var stopwatchtot = new Stopwatch();
             var stopwatchgen = new Stopwatch();
 
-            PopulationStatistics currentStats = new PopulationStatistics();
+            var currentStats = new PopulationStatistics();
             
             onemaxEA.PopulationStatisticsCalculated += (stats) =>
             {
@@ -130,7 +123,7 @@ namespace Eval.Examples
                 var genruntime = stopwatchgen.Elapsed;
                 Console.WriteLine();
                 Console.WriteLine(string.Format("G# {0}    best_f: {1:F3}    avg_f: {2:F3}    SD: {3:F3}    Progress: {4,5:F2}    Gen: {5}   Tot: {6}", gen, onemaxEA.Best.Fitness, currentStats.AverageFitness, currentStats.StandardDeviationFitness, progress, genruntime, totruntime));
-                Console.WriteLine("Generation winner: " + ((BinaryGenotype)onemaxEA.Best?.Genotype).ToBitString());
+                Console.WriteLine("Generation winner: " + ((BinaryGenotype)onemaxEA.Best.Genotype).ToBitString());
 
                 stopwatchgen.Restart();
             };

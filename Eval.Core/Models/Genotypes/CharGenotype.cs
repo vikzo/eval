@@ -8,7 +8,6 @@
 #endregion
 
 using Eval.Core.Util.EARandom;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +16,7 @@ namespace Eval.Core.Models
     /// <summary>
     /// A character based genotype of fixed length, supporting ASCII characters.
     /// </summary>
-    
+
     public class CharGenotype : AbstractListGenotype<char[], char>
     {
         public char[] Chars => Elements;

@@ -10,8 +10,6 @@
 using Eval.Core.Util.EARandom;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
 
 namespace Eval.Core.Util.Roulette
 {

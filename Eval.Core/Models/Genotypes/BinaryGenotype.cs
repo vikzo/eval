@@ -9,7 +9,6 @@
 
 using Eval.Core.Util;
 using Eval.Core.Util.EARandom;
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -18,7 +17,7 @@ namespace Eval.Core.Models
     /// <summary>
     /// A binary genotype of fixed length. Bits are efficiently stored in a BitArrayList.
     /// </summary>
-    
+
     public class BinaryGenotype : AbstractListGenotype<BitArrayList, bool>
     {
         public BitArrayList Bits => Elements;

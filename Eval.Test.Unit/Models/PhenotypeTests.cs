@@ -36,7 +36,7 @@ namespace Eval.Test.Unit.Models
             }
         }
 
-        private TestPhenotype phenotype;
+        private TestPhenotype phenotype = null!;
 
         [TestInitialize]
         public void TestInitialize()

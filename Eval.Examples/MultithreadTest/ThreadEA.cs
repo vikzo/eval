@@ -13,12 +13,7 @@ using Eval.Core.Models;
 using Eval.Core.Selection.Adult;
 using Eval.Core.Selection.Parent;
 using Eval.Core.Util.EARandom;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 // This is just a test. delete it at some point
 namespace Eval.Examples.MultithreadTest
@@ -80,7 +75,7 @@ namespace Eval.Examples.MultithreadTest
                 ReevaluateElites = false,
                 MultiThreaded = true
             };
-            var ea = new ThreadEA(config, new FastRandomNumberGenerator());
+            var ea = new ThreadEA(config, new DefaultRandomNumberGenerator());
             ea.NewGenerationEvent += gen => Console.WriteLine($"Generation {gen}");
             ea.NewBestFitnessEvent += (best, gen) => Console.WriteLine($"New best at generation {gen}. Fitness = {best.Fitness}");
             ea.Evolve();

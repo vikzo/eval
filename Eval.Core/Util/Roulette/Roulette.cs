@@ -9,8 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using Eval.Core.Util.EARandom;
 
 namespace Eval.Core.Util.Roulette

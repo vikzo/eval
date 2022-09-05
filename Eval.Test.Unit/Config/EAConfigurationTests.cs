@@ -13,11 +13,6 @@ using Eval.Core.Selection.Adult;
 using Eval.Core.Selection.Parent;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eval.Test.Unit.Config
 {

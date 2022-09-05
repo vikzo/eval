@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Eval.Core.Models;
 using Eval.Core.Util.EARandom;
 using FluentAssertions;
@@ -27,12 +26,12 @@ namespace Eval.Test.Unit.Models
     {
         protected abstract GType CreateGenotype { get; }
 
-        private IRandomNumberGenerator random;
+        private IRandomNumberGenerator random = null!;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            random = new FastRandomNumberGenerator();
+            random = new DefaultRandomNumberGenerator();
         }
 
         [TestMethod]

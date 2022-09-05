@@ -7,13 +7,10 @@
  */
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Eval.Core.Models
 {
-    
+
     public class PopulationStatistics
     {
         public double MaxFitness { get; set; }

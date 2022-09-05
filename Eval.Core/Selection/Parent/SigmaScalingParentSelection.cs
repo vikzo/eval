@@ -7,10 +7,8 @@
  */
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Eval.Core.Config;
 using Eval.Core.Models;
 using Eval.Core.Util.EARandom;
@@ -19,7 +17,7 @@ using Eval.Core.Util.Roulette;
 
 namespace Eval.Core.Selection.Parent
 {
-    
+
     public class SigmaScalingParentSelection : IParentSelection
     {
         private const double S = 1; // I think this is configurable, but keep it as is until we are sure.

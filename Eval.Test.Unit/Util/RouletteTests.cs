@@ -8,11 +8,8 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using Eval.Core.Models;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Eval.Core.Util.EARandom;
 using Eval.Core.Util.Roulette;
 

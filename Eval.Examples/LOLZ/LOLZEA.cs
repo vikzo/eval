@@ -14,16 +14,12 @@ using Eval.Core.Selection.Adult;
 using Eval.Core.Selection.Parent;
 using Eval.Core.Util;
 using Eval.Core.Util.EARandom;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Eval.Examples
 {
-    
+
     class LOLZPhenotype : Phenotype
     {
         private int _Z;
@@ -116,7 +112,7 @@ namespace Eval.Examples
                 CalculateStatistics = true
             };
 
-            var lolzea = new LOLZEA(config, new FastRandomNumberGenerator());
+            var lolzea = new LOLZEA(config, new DefaultRandomNumberGenerator());
 
             var stopwatchtot = new Stopwatch();
             var stopwatchgen = new Stopwatch();

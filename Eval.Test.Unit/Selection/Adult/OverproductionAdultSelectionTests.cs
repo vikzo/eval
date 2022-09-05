@@ -10,7 +10,6 @@
 using Eval.Core.Config;
 using Eval.Core.Models;
 using Eval.Core.Selection.Adult;
-using Eval.Core.Util.EARandom;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -30,7 +29,7 @@ namespace Eval.Test.Unit.Selection.Adult
                 F = fitness;
                 Evaluate();
             }
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 return obj is P p && Name == p.Name;
             }

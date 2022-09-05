@@ -7,11 +7,7 @@
  */
 #endregion
 
-using Eval.Core.Util.EARandom;
 using Eval.Examples;
-using Eval.Examples.Hamming;
-using Eval.Examples.MultithreadTest;
-using Newtonsoft.Json;
 
 // These examples should run as is and complete within seconds:
 

@@ -16,16 +16,16 @@ using System.Text;
 
 namespace Eval.ConfigOptimizer
 {
-    public class ConfigPhenotype<EAType> : Phenotype<ConfigGenotype> where EAType : EA<IPhenotype>
+    public class ConfigPhenotype : Phenotype
     {
-        public new ConfigGenotype Genotype => base.Genotype;
+        public new ConfigGenotype Genotype => (ConfigGenotype)base.Genotype;
         public int FitnessRuns { get; }
         public double? TargetEAFitnessAverage { get; private set; } = null;
         public TimeSpan? TargetEARuntimeAverage { get; private set; } = null;
 
-        private readonly EAType targetEA;
+        private readonly EA targetEA;
 
-        public ConfigPhenotype(ConfigGenotype genotype, int fitnessRuns, EAType targetEA) : base(genotype)
+        public ConfigPhenotype(ConfigGenotype genotype, int fitnessRuns, EA targetEA) : base(genotype)
         {
             FitnessRuns = fitnessRuns;
             this.targetEA = targetEA;

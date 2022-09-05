@@ -20,21 +20,23 @@ using System.Threading;
 
 namespace Eval.Core
 {
-    public abstract class EA : EA<IPhenotype>
+    public abstract class EA<TPhenotype> : EA where TPhenotype : class, IPhenotype
     {
+        public new TPhenotype Best => (TPhenotype)base.Best;
+        public new TPhenotype GenerationalBest => (TPhenotype)base.GenerationalBest;
+
         public EA(IEAConfiguration configuration, IRandomNumberGenerator rng) 
             : base(configuration, rng)
         {
         }
     }
 
-    public abstract class EA<TPhenotype>
-        where TPhenotype : class, IPhenotype
+    public abstract class EA
     {
         public event Action<int> NewGenerationEvent;
-        public event Action<TPhenotype, int> NewBestFitnessEvent;
+        public event Action<IPhenotype, int> NewBestFitnessEvent;
         public event Action<TerminationReason> TerminationEvent;
-        public event Action<TPhenotype> PhenotypeEvaluatedEvent;
+        public event Action<IPhenotype> PhenotypeEvaluatedEvent;
         public event Action<PopulationStatistics> PopulationStatisticsCalculated;
 
         public IEAConfiguration EAConfiguration { get; set; }
@@ -43,8 +45,8 @@ namespace Eval.Core
         public int Generation { get; private set; }
         public TimeSpan GetDuration => _stopwatch.Elapsed;
 
-        public TPhenotype GenerationalBest { get; protected set; }
-        public TPhenotype Best { get; protected set; }
+        public IPhenotype GenerationalBest { get; protected set; }
+        public IPhenotype Best { get; protected set; }
         public bool AbortRequested { get; private set; }
 
         protected IParentSelection ParentSelection;
@@ -82,8 +84,9 @@ namespace Eval.Core
             ParentSelection = CreateParentSelection();
         }
 
-        protected abstract TPhenotype CreateRandomPhenotype();
-        protected abstract TPhenotype CreatePhenotype(IGenotype genotype);
+        protected abstract IPhenotype CreateRandomPhenotype();
+
+        protected abstract IPhenotype CreatePhenotype(IGenotype genotype);
 
         /// <summary>
         /// Creates a new population filled with phenotypes from CreateRandomPhenotype method.
@@ -143,7 +146,7 @@ namespace Eval.Core
 
                 if (IsBetterThan(generationBest, Best))
                 {
-                    Best = (TPhenotype)generationBest;
+                    Best = generationBest;
                     NewBestFitnessEvent?.Invoke(Best, Generation);
                 }
                 
@@ -265,26 +268,24 @@ namespace Eval.Core
                 foreach (var p in population)
                 {
                     p.Evaluate();
-                    PhenotypeEvaluatedEvent?.Invoke((TPhenotype)p);
+                    PhenotypeEvaluatedEvent?.Invoke((IPhenotype)p);
                 }
             }
             else
             {
-                using (var countdownEvent = new CountdownEvent(population.Count))
+                using var countdownEvent = new CountdownEvent(population.Count);
+                foreach (var p in population)
                 {
-                    foreach (var p in population)
-                    {
-                        ThreadPool.QueueUserWorkItem(FitnessWorker, new object[] { p, countdownEvent });
-                    }
-                    countdownEvent.Wait();
+                    ThreadPool.QueueUserWorkItem(FitnessWorker, new object[] { p, countdownEvent });
                 }
+                countdownEvent.Wait();
             }
         }
 
         private void FitnessWorker(object state)
         {
             var input = state as object[];
-            var pheno = input[0] as TPhenotype;
+            var pheno = input[0] as IPhenotype;
             var countdownEvent = input[1] as CountdownEvent;
 
             pheno.Evaluate();

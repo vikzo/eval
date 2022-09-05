@@ -7,7 +7,6 @@
  */
 #endregion
 
-using System;
 using Eval.Core.Util;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

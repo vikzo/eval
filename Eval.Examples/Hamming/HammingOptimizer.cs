@@ -11,7 +11,6 @@ using Eval.ConfigOptimizer;
 using Eval.Core;
 using Eval.Core.Config;
 using Eval.Core.Util.EARandom;
-using System.Threading;
 
 namespace Eval.Examples.Hamming
 {
@@ -36,7 +35,7 @@ namespace Eval.Examples.Hamming
         }
     }
 
-    public class HammingOptimizer : ConfigOptimizerEA<EA<HammingPhenotype>>
+    public class HammingOptimizer : ConfigOptimizerEA
     {
         public override bool TargetEA_ReevaluateElites => false;
         public override int TargetEA_MaximumGenerations => 1000;
@@ -49,7 +48,7 @@ namespace Eval.Examples.Hamming
         {
         }
 
-        protected override EA<HammingPhenotype> CreateTargetEA(IEAConfiguration targetConfig, IRandomNumberGenerator random)
+        protected override EA CreateTargetEA(IEAConfiguration targetConfig, IRandomNumberGenerator random)
         {
             return new HammingEA(targetConfig, random);
         }
@@ -61,7 +60,7 @@ namespace Eval.Examples.Hamming
 
         protected override IRandomNumberGenerator CreateRandomNumberGenerator()
         {
-            return new FastRandomNumberGenerator();
+            return new DefaultRandomNumberGenerator();
         }
 
         public static void Run()
@@ -70,7 +69,7 @@ namespace Eval.Examples.Hamming
             optimizerConfig.PopulationSize = 100;
             optimizerConfig.MultiThreaded = true;
 
-            var optimizer = new HammingOptimizer(optimizerConfig, new FastRandomNumberGenerator());
+            var optimizer = new HammingOptimizer(optimizerConfig, new DefaultRandomNumberGenerator());
             optimizer.Evolve();
         }
     }

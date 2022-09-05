@@ -7,12 +7,11 @@
  */
 #endregion
 
-using System;
 using System.Text;
 
 namespace Eval.Core.Util
 {
-    
+
     public class ConsoleProgressBar
     {
 

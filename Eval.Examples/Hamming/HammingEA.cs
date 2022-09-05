@@ -13,18 +13,15 @@ using Eval.Core.Models;
 using Eval.Core.Selection.Adult;
 using Eval.Core.Selection.Parent;
 using Eval.Core.Util.EARandom;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 
 namespace Eval.Examples
 {
-    
+
     public class StringGenotype : Genotype
     {
-        public string str;
+        public string str = null!;
 
         public StringGenotype(string str) : base()
         {
@@ -52,7 +49,7 @@ namespace Eval.Examples
 
                 case CrossoverType.OnePoint:
                     var point = random.Next(Math.Min(str.Length, og.str.Length));
-                    newgeno.str = str.Substring(0, point) + og.str.Substring(point);
+                    newgeno.str = string.Concat(str.AsSpan(0, point), og.str.AsSpan(point));
                     break;
 
                 default: throw new NotImplementedException(crossover.ToString());
@@ -118,7 +115,7 @@ namespace Eval.Examples
     
     public class HammingEA : EA<HammingPhenotype>
     {
-        public static string TARGET = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
+        public static readonly string TARGET = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.";
 
         public HammingEA(IEAConfiguration config, IRandomNumberGenerator rng) : base(config, rng)
         {}
@@ -159,7 +156,7 @@ namespace Eval.Examples
                 CalculateStatistics = true
             };
 
-            var hammingEA = new HammingEA(config, new FastRandomNumberGenerator());
+            var hammingEA = new HammingEA(config, new DefaultRandomNumberGenerator());
 
             var stopwatchtot = new Stopwatch();
             var stopwatchgen = new Stopwatch();
@@ -201,7 +198,7 @@ namespace Eval.Examples
             
         private static void WriteResultToFile(List<PopulationStatistics> stats)
         {
-            using var file = new StreamWriter($"hamming_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}.csv");
+            using var file = new StreamWriter($"hamming_{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.csv");
             file.WriteLine("MinFitness,MaxFitness,AverageFitness,StandardDeviationFitness,VarianceFitness");
             foreach (var stat in stats)
             {

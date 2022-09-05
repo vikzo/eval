@@ -33,7 +33,7 @@ namespace Eval.Test.Unit.Models
     [TestClass]
     public class ArrayGenotypeBaseTests : GenotypeTestBase<ArrayGenotype<TestGenoElement>>
     {
-        protected override ArrayGenotype<TestGenoElement> CreateGenotype => new ArrayGenotype<TestGenoElement>(Repeat(() => new TestGenoElement(0), 10).ToArray());
+        protected override ArrayGenotype<TestGenoElement> CreateGenotype => new(Repeat(() => new TestGenoElement(0), 10).ToArray());
     }
 
     public class TestGenoElement : IGenotypeElement
@@ -55,16 +55,15 @@ namespace Eval.Test.Unit.Models
             Value += factor * random.NextDouble(-1, 1);
         }
 
-        public override bool Equals(object obj)
+
+        public override bool Equals(object? obj)
         {
             return obj is TestGenoElement other && Value == other.Value;
         }
 
         public override int GetHashCode()
         {
-            var hashCode = -159790080;
-            hashCode = hashCode * -1521134295 + Value.GetHashCode();
-            return hashCode;
+            return HashCode.Combine(Value);
         }
     }
 }

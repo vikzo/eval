@@ -7,7 +7,6 @@
  */
 #endregion
 
-using System;
 using Eval.Core.Config;
 using Eval.Core.Models;
 using Eval.Core.Selection.Parent;
@@ -23,7 +22,7 @@ namespace Eval.Test.Unit.Selection.Parent
         [TestMethod]
         public void RankParentSelection_VerifySelectionProbability()
         {
-            var random = new FastRandomNumberGenerator("seed".GetHashCode());
+            var random = new DefaultRandomNumberGenerator("seed".GetHashCode());
             var population = new Population(11);
             var index = 0;
             population.Fill(() => new TestPhenotype(index++, index * index * index * 0.1));
