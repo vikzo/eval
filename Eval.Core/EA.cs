@@ -41,6 +41,12 @@ namespace Eval.Core
             : base(configuration, adultSelection, parentSelection, population, rng)
         {
         }
+
+#if NET6_0_OR_GREATER
+        protected override abstract TPhenotype CreateRandomPhenotype();
+
+        protected override abstract TPhenotype CreatePhenotype(IGenotype genotype);
+#endif
     }
 
     public abstract class EA
@@ -173,7 +179,7 @@ namespace Eval.Core
             while (true)
             {
                 Population.Sort(EAConfiguration.Mode);
-                var generationBest = Population.First();
+                var generationBest = Population[0];
 
                 if (IsBetterThan(generationBest, Best))
                 {
