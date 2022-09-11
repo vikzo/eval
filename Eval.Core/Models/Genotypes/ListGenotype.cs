@@ -55,13 +55,12 @@ namespace Eval.Core.Models
 
         public override IGenotype CrossoverWith(IGenotype other, CrossoverType crossover, IRandomNumberGenerator random)
         {
-            switch (crossover)
+            return crossover switch
             {
-                case CrossoverType.OnePoint: return OnePointCrossover((ListGenotype<T>)other, random);
-                case CrossoverType.Uniform: return UniformCrossover((ListGenotype<T>)other, random);
-                default:
-                    throw new NotImplementedException($"Crossover {crossover} is not implemented in ArrayGenotype");
-            }
+                CrossoverType.OnePoint => OnePointCrossover((ListGenotype<T>)other, random),
+                CrossoverType.Uniform => UniformCrossover((ListGenotype<T>)other, random),
+                _ => throw new NotImplementedException($"Crossover {crossover} is not implemented in ArrayGenotype"),
+            };
         }
 
         protected virtual ListGenotype<T> OnePointCrossover(ListGenotype<T> other, IRandomNumberGenerator random)

@@ -15,7 +15,6 @@ using Eval.Core.Util.EARandom;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 
 namespace Eval.Core
@@ -25,11 +24,15 @@ namespace Eval.Core
         public new TPhenotype Best => (TPhenotype)base.Best;
         public new TPhenotype GenerationalBest => (TPhenotype)base.GenerationalBest;
 
+        public new event Action<TPhenotype, int> NewBestFitnessEvent;
+        public new event Action<TPhenotype> PhenotypeEvaluatedEvent;
+
         public EA(
             IEAConfiguration configuration, 
             IRandomNumberGenerator rng) 
             : base(configuration, rng)
         {
+            InitEventOverrides();
         }
 
         protected EA(
@@ -40,6 +43,13 @@ namespace Eval.Core
             IRandomNumberGenerator rng = null) 
             : base(configuration, adultSelection, parentSelection, population, rng)
         {
+            InitEventOverrides();
+        }
+
+        protected virtual void InitEventOverrides()
+        {
+            base.NewBestFitnessEvent += (pheno, gen) => { NewBestFitnessEvent?.Invoke((TPhenotype)pheno, gen); };
+            base.PhenotypeEvaluatedEvent += (pheno) => { PhenotypeEvaluatedEvent?.Invoke((TPhenotype)pheno); };
         }
 
 #if NET6_0_OR_GREATER
@@ -53,8 +63,8 @@ namespace Eval.Core
     {
         public event Action<int> NewGenerationEvent;
         public event Action<IPhenotype, int> NewBestFitnessEvent;
-        public event Action<TerminationReason> TerminationEvent;
         public event Action<IPhenotype> PhenotypeEvaluatedEvent;
+        public event Action<TerminationReason> TerminationEvent;
         public event Action<PopulationStatistics> PopulationStatisticsCalculated;
 
         public IEAConfiguration EAConfiguration { get; set; }

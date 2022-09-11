@@ -36,7 +36,10 @@ namespace Eval.Core.Models
                 }
                 return _fitness;
             }
-            private set { _fitness = value; }
+            private set 
+            { 
+                _fitness = value; 
+            }
         }
 
         public Phenotype(IGenotype genotype)
